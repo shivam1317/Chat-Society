@@ -1,10 +1,4 @@
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-body {
+.loginBody {
   min-height: 100vh;
   display: flex;
   justify-content: center;
@@ -12,7 +6,7 @@ body {
   background: #181818;
 }
 
-div {
+.loginContainer {
   width: 50vh;
   height: 50vh;
   box-shadow: 16px 14px 20px #0000008c;

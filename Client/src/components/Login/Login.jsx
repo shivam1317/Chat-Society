@@ -25,32 +25,34 @@ const Login = () => {
   };
   return (
     <>
-      <div class="grid grid-cols-2">
-        <input
-          className="border-b-2 border-grey-200"
-          name="username"
-          type="text"
-          placeholder="Username"
-          value={username}
-          onChange={itemEvent}
-        />
-        <input
-          name="password"
-          placeholder="Password"
-          type="password"
-          value={password}
-          onChange={itemEvent}
-        />
-        <div>
-          <button
-            className="outline-none"
-            name="submit"
-            type="submit"
-            onSubmit={submitForm}
-          >
-            Submit
-          </button>
-          {/* <button className="outline-none">Signup</button> */}
+      <div className="loginBody">
+        <div className="flex-col loginContainer">
+          <input
+            className="border-b-2 border-grey-200"
+            name="username"
+            type="text"
+            placeholder="Username"
+            value={username}
+            onChange={itemEvent}
+          />
+          <input
+            name="password"
+            placeholder="Password"
+            type="password"
+            value={password}
+            onChange={itemEvent}
+          />
+          <div>
+            <button
+              className="outline-none"
+              name="submit"
+              type="submit"
+              onSubmit={submitForm}
+            >
+              Submit
+            </button>
+            {/* <button className="outline-none">Signup</button> */}
+          </div>
         </div>
       </div>
     </>

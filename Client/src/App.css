@@ -1,42 +1,15 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
+@import url("https://fonts.googleapis.com/css2?family=Mulish&display=swap");
 * {
   padding: 0px;
   margin: 0px;
   box-sizing: border-box;
+  font-family: "Mulish", sans-serif;
 }
 body {
-  overflow: hidden;
-  color: white;
-}
-.container {
+  /* overflow: hidden; */
   background-color: #161625;
-  display: grid;
-  grid-template-columns: 0.7fr 2fr 9fr;
-  height: 100vh;
-}
-.server {
-  /* background-color: #30303d; */
-}
-.channels {
-  background-color: #1e1e30;
-}
-.chat-body {
-  /* background-color: #27274e; */
-  display: grid;
-  grid-template-rows: 1fr 9fr 1fr;
-}
-.chat-body-header {
-  background-color: #1e1e30;
-  display: grid;
-  grid-template-columns: 9fr 1fr;
-}
-.chat-footer {
-  /* background-color: rgb(47, 47, 56); */
-  border-top: 2px solid #26263d;
-
-  display: grid;
-  grid-template-columns: 9fr 1fr;
+  color: white;
 }
