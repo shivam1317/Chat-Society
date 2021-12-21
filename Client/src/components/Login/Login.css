@@ -3,17 +3,23 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  background: #181818;
+  background: #201f1f;
 }
 
 .loginContainer {
+  background-color: #1e1e30;
   width: 50vh;
-  height: 50vh;
-  box-shadow: 16px 14px 20px #0000008c;
+  height: fit-content;
+  box-shadow: rgba(0, 0, 0, 0.3) 0px 15px 30px,
+    rgba(0, 0, 0, 0.25) 0px 13px 13px;
   border-radius: 10px;
   position: relative;
   overflow: hidden;
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+.input {
+  border-bottom: 2px solid white;
 }
