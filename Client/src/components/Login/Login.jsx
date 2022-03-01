@@ -1,38 +1,60 @@
-import { useState } from "react";
-import axios from "axios";
+import { useState, useEffect } from "react";
 import "./Login.css";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
+import { signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
+import { auth } from "../../firebase-config.js";
 // import Home from "../Home/Home";
 
 const Login = () => {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
+  const navigate = useNavigate();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [userDetails, setUserDetails] = useState({
+    email: "",
+    password: "",
+  });
+  onAuthStateChanged(auth, (currUser) => {
+    if (currUser) {
+      setIsAuthenticated(true);
+    } else {
+      setIsAuthenticated(false);
+    }
+  });
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate("/dashboard");
+    }
+  });
   const itemEvent = (event) => {
-    setUsername(event.target.value);
-    setPassword(event.target.value);
+    const name = event.target.name;
+    const value = event.target.value;
+    setUserDetails((prev) => {
+      return {
+        ...prev,
+        [name]: value,
+      };
+    });
   };
-  const submitForm = (e) => {
-    e.preventdefault();
-    const data = {
-      username: username,
-      password: password,
-    };
-    axios
-      .post("http://localhost:5000/login", data)
-      .then(() => console.log(`data passed successfully!!!`))
-      .catch((err) => {
-        console.error(err);
-      });
+  const submitForm = async (e) => {
+    e.preventDefault();
+    const { email, password } = userDetails;
+    console.log(email, password);
+    try {
+      const user = await signInWithEmailAndPassword(auth, email, password);
+      console.log(user);
+      navigate("/dashboard");
+    } catch (error) {
+      console.log(error.message);
+    }
   };
   return (
     <>
       <div className="loginBody">
-        <div className="flex-col loginContainer p-5">
+        <form className="flex-col loginContainer p-5">
           <input
             className="my-3 outline-none p-2 bg-[#1e1e30] text-center input font-bold"
-            name="username"
-            type="text"
-            placeholder="Username"
+            name="email"
+            type="email"
+            placeholder="Email"
             onChange={itemEvent}
           />
           <input
@@ -47,7 +69,7 @@ const Login = () => {
               className="outline-none my-3 bg-white text-[#1e1e30] hover:bg-[#1e1e30] hover:text-white p-3 w-40 rounded-xl hover:border-white border-2 font-bold transition-all"
               name="submit"
               type="submit"
-              onSubmit={submitForm}
+              onClick={submitForm}
             >
               Login
             </button>
@@ -62,7 +84,7 @@ const Login = () => {
               Register
             </NavLink>
           </p>
-        </div>
+        </form>
       </div>
     </>
   );
