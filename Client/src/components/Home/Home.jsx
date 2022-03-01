@@ -3,6 +3,8 @@ import "./Home.css";
 import { signOut, onAuthStateChanged } from "firebase/auth";
 import { auth } from "../../firebase-config";
 import { useNavigate } from "react-router-dom";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Home = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(true);
@@ -20,14 +22,33 @@ const Home = () => {
     }
   });
   const logoutUser = () => {
+    const id = toast.loading("Logging out...");
     signOut(auth)
       .then(() => {
-        setIsAuthenticated(false);
         console.log("signed out successfully...");
         console.log(isAuthenticated);
+        toast.update(id, {
+          render: "Logout successful..",
+          type: "success",
+          isLoading: false,
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          theme: "dark",
+        });
+        setIsAuthenticated(false);
         navigate("/login");
       })
       .catch((e) => {
+        toast.error("Some error occured", {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          theme: "dark",
+        });
         console.log(e.message);
       });
   };
@@ -90,6 +111,7 @@ const Home = () => {
           </div>
           <div className="mt-auto flex justify-center hover:text-blue-500 transition-all ">
             <button onClick={logoutUser}>
+              <ToastContainer />
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 class="h-6 w-6"

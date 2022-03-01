@@ -7,6 +7,8 @@ import {
   onAuthStateChanged,
 } from "firebase/auth";
 import { auth } from "../../firebase-config";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Signup = () => {
   // const [username, setUsername] = useState("");
@@ -17,6 +19,7 @@ const Signup = () => {
     username: "",
     email: "",
     password: "",
+    password2: "",
   });
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
@@ -55,14 +58,47 @@ const Signup = () => {
     //   .catch((err) => {
     //     console.error(err);
     //   });
-    const { username, email, password } = userDetails;
+    const id = toast.loading("Signing Up..");
+    const { username, email, password, password2 } = userDetails;
+    if (password !== password2) {
+      toast.error("Passwords are not matching", {
+        position: "top-right",
+        theme: "dark",
+        closeOnClick: true,
+        autoClose: 3000,
+        progress: true,
+      });
+    }
     try {
       console.log("trying user auth");
+
       const user = await createUserWithEmailAndPassword(auth, email, password);
       console.log(user);
+      toast.update(id, {
+        render: "Login successfull",
+        type: "success",
+        isLoading: false,
+        theme: "dark",
+        autoClose: 3000,
+        closeOnClick: true,
+      });
       setIsAuthenticated(true);
       navigate("/dashboard");
     } catch (error) {
+      toast.update(id, {
+        render: "Some error occured",
+        type: "error",
+        isLoading: false,
+        theme: "dark",
+        autoClose: 3000,
+        closeOnClick: true,
+      });
+      setUserDetails({
+        username: "",
+        email: "",
+        password: "",
+        password2: "",
+      });
       console.log(error.message);
     }
   };
@@ -77,6 +113,7 @@ const Signup = () => {
             type="email"
             placeholder="Email"
             onChange={itemEvent}
+            value={userDetails.email}
           />
           <input
             className="my-3 outline-none p-2 bg-[#1e1e30] text-center input font-bold"
@@ -84,6 +121,7 @@ const Signup = () => {
             type="text"
             placeholder="Username"
             onChange={itemEvent}
+            value={userDetails.username}
           />
           <input
             className="my-3 outline-none p-2 bg-[#1e1e30] text-center input font-bold"
@@ -91,13 +129,15 @@ const Signup = () => {
             placeholder="Password"
             type="password"
             onChange={itemEvent}
+            value={userDetails.password}
           />
           <input
             className="my-3 outline-none p-2 bg-[#1e1e30] text-center input font-bold"
-            name="password"
+            name="password2"
             placeholder="Repeat password"
             type="password"
             onChange={itemEvent}
+            value={userDetails.password2}
           />
           <div>
             <button
@@ -108,6 +148,7 @@ const Signup = () => {
             >
               Signup
             </button>
+            <ToastContainer />
             {/* <button className="outline-none">Signup</button> */}
           </div>
           <p>
