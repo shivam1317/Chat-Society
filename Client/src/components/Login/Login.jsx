@@ -1,7 +1,12 @@
 import { useState, useEffect } from "react";
 import "./Login.css";
 import { NavLink, useNavigate } from "react-router-dom";
-import { signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
+import {
+  signInWithEmailAndPassword,
+  onAuthStateChanged,
+  GoogleAuthProvider,
+  signInWithPopup,
+} from "firebase/auth";
 import { auth } from "../../firebase-config.js";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -68,6 +73,35 @@ const Login = () => {
       console.log(error.message);
     }
   };
+  const googleLogin = async (e) => {
+    e.preventDefault();
+    const id = toast.loading("Logging in with google..");
+    try {
+      const provider = new GoogleAuthProvider();
+      const userDetail = await signInWithPopup(auth, provider);
+      console.log(userDetail.user);
+      toast.update(id, {
+        render: "Login successful",
+        type: "success",
+        isLoading: false,
+        autoClose: 2000,
+        closeOnClick: true,
+      });
+      setIsAuthenticated(true);
+      navigate("/dashboard");
+    } catch (error) {
+      toast.update(id, {
+        render: "Some error occured!",
+        type: "error",
+        isLoading: false,
+        autoClose: 2000,
+        closeOnClick: true,
+        progress: false,
+      });
+      console.log(error.message);
+    }
+  };
+
   return (
     <>
       <div className="loginBody">
@@ -99,6 +133,20 @@ const Login = () => {
             </button>
             <ToastContainer />
             {/* <button className="outline-none">Signup</button> */}
+          </div>
+          <hr className="border-dashed border-white w-full" />
+          <div className="flex justify-evenly flex-col items-center">
+            <button
+              className="outline-none my-3 bg-white text-[#1e1e30] hover:bg-[#1e1e30] hover:text-white p-4  rounded-xl hover:border-white border-2 font-bold transition-all"
+              onClick={googleLogin}
+            >
+              Login with{" "}
+              <img
+                src="/images/google.svg"
+                alt="google"
+                className="w-5 h-5 inline"
+              />
+            </button>
           </div>
           <p>
             Not registered?{" "}

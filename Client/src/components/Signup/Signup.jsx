@@ -5,15 +5,14 @@ import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import {
   createUserWithEmailAndPassword,
   onAuthStateChanged,
+  GoogleAuthProvider,
+  signInWithPopup,
 } from "firebase/auth";
 import { auth } from "../../firebase-config";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const Signup = () => {
-  // const [username, setUsername] = useState("");
-  // const [password, setPassword] = useState("");
-  // const [email, setEmail] = useState("");
   const navigate = useNavigate();
   const [userDetails, setUserDetails] = useState({
     username: "",
@@ -103,6 +102,36 @@ const Signup = () => {
     }
   };
 
+  const googleLogin = async (e) => {
+    e.preventDefault();
+    const id = toast.loading("Signing Up with google..");
+    try {
+      const provider = new GoogleAuthProvider();
+      const userDetail = await signInWithPopup(auth, provider);
+      console.log(userDetail.user);
+      toast.update(id, {
+        render: "Login successfull",
+        type: "success",
+        isLoading: false,
+        theme: "dark",
+        autoClose: 3000,
+        closeOnClick: true,
+      });
+      setIsAuthenticated(true);
+      navigate("/dashboard");
+    } catch (error) {
+      toast.update(id, {
+        render: "Some error occured",
+        type: "error",
+        isLoading: false,
+        theme: "dark",
+        autoClose: 3000,
+        closeOnClick: true,
+      });
+      console.log(error.message);
+    }
+  };
+
   return (
     <>
       <div className="loginBody">
@@ -150,6 +179,20 @@ const Signup = () => {
             </button>
             <ToastContainer />
             {/* <button className="outline-none">Signup</button> */}
+          </div>
+          <hr className="border-dashed border-white w-full" />
+          <div className="flex justify-evenly flex-col items-center">
+            <button
+              className="outline-none my-3 bg-white text-[#1e1e30] hover:bg-[#1e1e30] hover:text-white p-4  rounded-xl hover:border-white border-2 font-bold transition-all"
+              onClick={googleLogin}
+            >
+              Signup with{" "}
+              <img
+                src="/images/google.svg"
+                alt="google"
+                className="w-5 h-5 inline"
+              />
+            </button>
           </div>
           <p>
             Already registered?{" "}
