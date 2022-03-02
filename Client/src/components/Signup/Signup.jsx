@@ -7,6 +7,7 @@ import {
   onAuthStateChanged,
   GoogleAuthProvider,
   signInWithPopup,
+  updateProfile,
 } from "firebase/auth";
 import { auth } from "../../firebase-config";
 import { ToastContainer, toast } from "react-toastify";
@@ -72,6 +73,7 @@ const Signup = () => {
       console.log("trying user auth");
 
       const user = await createUserWithEmailAndPassword(auth, email, password);
+      await updateProfile(auth.currentUser, { displayName: username });
       console.log(user);
       toast.update(id, {
         render: "Login successfull",

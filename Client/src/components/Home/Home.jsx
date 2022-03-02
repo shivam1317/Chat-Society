@@ -7,10 +7,13 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const Home = () => {
+  console.log(auth.currentUser);
+  const [displayName, setDisplayName] = useState("");
   const [isAuthenticated, setIsAuthenticated] = useState(true);
   const navigate = useNavigate();
   onAuthStateChanged(auth, (currUser) => {
     if (currUser) {
+      setDisplayName(currUser.displayName);
       setIsAuthenticated(true);
     } else {
       setIsAuthenticated(false);
@@ -109,8 +112,12 @@ const Home = () => {
               />
             </svg>
           </div>
-          <div className="mt-auto flex justify-center hover:text-blue-500 transition-all ">
-            <button onClick={logoutUser}>
+          <div className="mt-auto flex justify-center flex-col items-center">
+            <p className="text-xs">{displayName}</p>
+            <button
+              onClick={logoutUser}
+              className="hover:text-blue-500 transition-all"
+            >
               <ToastContainer />
               <svg
                 xmlns="http://www.w3.org/2000/svg"
