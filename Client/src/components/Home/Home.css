@@ -23,6 +23,4 @@
 .chat-footer {
   /* background-color: rgb(47, 47, 56); */
   border-top: 2px solid #26263d;
-  display: grid;
-  grid-template-columns: 9fr 1fr;
 }

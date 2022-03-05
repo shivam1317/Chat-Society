@@ -18,7 +18,7 @@ import "tippy.js/animations/scale-extreme.css";
 
 const Home = () => {
   // console.log(auth.currentUser);
-  const { channelInfo } = useContext(ChannelContext);
+  const { channelInfo, setChannelInfo } = useContext(ChannelContext);
   const [servers] = useCollection(collection(db, "serverList"));
   const { serverInfo, setServerInfo } = useContext(ServerContext);
   const [displayName, setDisplayName] = useState("");
@@ -93,6 +93,10 @@ const Home = () => {
     setServerInfo({
       serverName: server,
     });
+    setChannelInfo({
+      channelId: null,
+      channelName: null,
+    });
     navigate(`/dashboard/${server}`);
   };
   tippy("#profile", {
@@ -119,7 +123,7 @@ const Home = () => {
             />
           </svg>
           <hr className=" border-1 border-gray-700 w-full" />
-          <div className="flex justify-center items-center flex-col">
+          <div className="flex justify-center items-center flex-col overflow-y-scroll scrollbar-hide">
             {/* <button className="border-2 border-green-500 rounded w-10 h-10 ml-3">
               +
             </button> */}
@@ -180,7 +184,7 @@ const Home = () => {
           <Server serverName={serverInfo.serverName} />
         </div>
         <div className="chat-body">
-          <div className="chat-body-header">
+          <div className="chat-body-header flex-grow justify-between">
             <div className="">
               <p className="p-5">
                 {channelInfo.channelName
@@ -201,10 +205,15 @@ const Home = () => {
               Join a channel to show chats
             </p> */}
           </div>
-          <div className="chat-footer p-4 text-lg">
+          <div className="chat-footer p-4 text-lg flex-grow ">
             <input
               name="send-message"
-              placeholder={"Message #" + channelInfo.channelName}
+              disabled={!channelInfo.channelId}
+              placeholder={
+                channelInfo.channelName
+                  ? "Message #" + channelInfo.channelName
+                  : "Select a channel"
+              }
               className="send-message w-full rounded-lg pl-5 bg-[#2d2d47] outline-none"
             />
           </div>
