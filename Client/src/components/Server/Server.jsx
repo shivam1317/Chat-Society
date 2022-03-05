@@ -48,7 +48,7 @@ const Server = ({ serverName }) => {
           />
         </svg>
       </div>
-      <div className="flex flex-col space-y-2 mt-3">
+      <div className="flex flex-col space-y-2 mt-3 overflow-y-scroll scrollbar-hide">
         {channels?.docs.map((doc) => (
           <Channel
             id={doc.id}
