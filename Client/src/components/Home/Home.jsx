@@ -1,15 +1,29 @@
 import React, { useEffect, useState } from "react";
 import "./Home.css";
 import { signOut, onAuthStateChanged } from "firebase/auth";
-import { auth } from "../../firebase-config";
+import { auth, db } from "../../firebase-config";
 import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { collection, addDoc } from "firebase/firestore";
+import Channel from "../Channel/Channel";
+import { useContext } from "react";
+import { ChannelContext } from "../Contexts/ChannelContext";
+import { ServerContext } from "../Contexts/ServerContext";
+import Server from "../Server/Server";
+import { useCollection } from "react-firebase-hooks/firestore";
+import tippy from "tippy.js";
+import "tippy.js/dist/tippy.css";
+import "tippy.js/animations/scale-extreme.css";
 
 const Home = () => {
-  console.log(auth.currentUser);
+  // console.log(auth.currentUser);
+  const { channelInfo } = useContext(ChannelContext);
+  const [servers] = useCollection(collection(db, "serverList"));
+  const { serverInfo, setServerInfo } = useContext(ServerContext);
   const [displayName, setDisplayName] = useState("");
   const [isAuthenticated, setIsAuthenticated] = useState(true);
+
   const navigate = useNavigate();
   onAuthStateChanged(auth, (currUser) => {
     if (currUser) {
@@ -56,10 +70,40 @@ const Home = () => {
       });
   };
 
+  const addServer = async () => {
+    const inputServerName = prompt("Add server name");
+    const inputChannelName = prompt("Add first channel name");
+    if (inputServerName && inputChannelName) {
+      try {
+        const Doc = await addDoc(collection(db, inputServerName), {
+          channelName: inputChannelName,
+        });
+        console.log("Collection created with name:", inputServerName);
+        console.log("Document written with ID: ", Doc.id);
+        await addDoc(collection(db, "serverList"), {
+          serverName: inputServerName,
+        });
+      } catch (error) {
+        console.log(error.message);
+      }
+    }
+  };
+
+  const setServer = (server) => {
+    setServerInfo({
+      serverName: server,
+    });
+    navigate(`/dashboard/${server}`);
+  };
+  tippy("#profile", {
+    content: displayName,
+    animation: "scale-extreme",
+  });
+
   return (
     <>
       <div className="container w-full">
-        <div className="server p-3 border-2 border-white flex flex-col">
+        <div className="server p-3 border-2 border-white flex flex-col justify-center items-center">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             className="h-10 w-10 mb-5  text-blue-500 transition-all cursor-pointer"
@@ -74,8 +118,8 @@ const Home = () => {
               d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z"
             />
           </svg>
-          <hr className="bg-gray-600" />
-          <div className="createServer">
+          <hr className=" border-1 border-gray-700 w-full" />
+          <div className="flex justify-center items-center flex-col">
             {/* <button className="border-2 border-green-500 rounded w-10 h-10 ml-3">
               +
             </button> */}
@@ -86,6 +130,7 @@ const Home = () => {
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
+              onClick={addServer}
             >
               <path
                 strokeLinecap="round"
@@ -95,25 +140,19 @@ const Home = () => {
               />
             </svg>
 
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-10 w-10 my-5 bg-slate-700 hover:rounded-xl hover:text-blue-500 transition-all cursor-pointer"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path d="M12 14l9-5-9-5-9 5 9 5z" />
-              <path d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222"
-              />
-            </svg>
+            {servers?.docs.map((server) => {
+              return (
+                <div
+                  className="flex flex-col cursor-pointer p-1 hover:bg-slate-800 transition-all ease-in-out rounded-lg"
+                  onClick={() => setServer(server.data().serverName)}
+                >
+                  <p>{server.data().serverName}</p>
+                </div>
+              );
+            })}
           </div>
           <div className="mt-auto flex justify-center flex-col items-center">
-            <p className="text-xs">{displayName}</p>
+            {/* <p className="text-xs">{displayName}</p> */}
             <button
               onClick={logoutUser}
               className="hover:text-blue-500 transition-all"
@@ -121,30 +160,33 @@ const Home = () => {
               <ToastContainer />
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                class="h-6 w-6"
+                className="h-6 w-6"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
+                strokeWidth={2}
+                id="profile"
               >
                 <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
                 />
               </svg>
             </button>
           </div>
         </div>
-        <div className="channels p-2 border-2 border-transparent rounded-tl-2xl h-full">
-          <div className="text-center border-b-2 border-[#26263d] mt-2">
-            <h1>channels</h1>
-          </div>
+        <div>
+          <Server serverName={serverInfo.serverName} />
         </div>
         <div className="chat-body">
           <div className="chat-body-header">
             <div className="">
-              <p className="p-5">Channel Name</p>
+              <p className="p-5">
+                {channelInfo.channelName
+                  ? channelInfo.channelName
+                  : "ChannelName"}
+              </p>
             </div>
             <div className="p-2 w-15 mt-2">
               <input
@@ -162,7 +204,7 @@ const Home = () => {
           <div className="chat-footer p-4 text-lg">
             <input
               name="send-message"
-              placeholder="  send you first message..."
+              placeholder={"Message #" + channelInfo.channelName}
               className="send-message w-full rounded-lg pl-5 bg-[#2d2d47] outline-none"
             />
           </div>
