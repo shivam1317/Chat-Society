@@ -6,7 +6,6 @@ import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { collection, addDoc } from "firebase/firestore";
-import Channel from "../Channel/Channel";
 import { useContext } from "react";
 import { ChannelContext } from "../Contexts/ChannelContext";
 import { ServerContext } from "../Contexts/ServerContext";
@@ -17,10 +16,7 @@ import "tippy.js/dist/tippy.css";
 import "tippy.js/animations/scale-extreme.css";
 
 const Home = () => {
-  // console.log(auth.currentUser);
-  const { channelInfo, setChannelInfo } = useContext(ChannelContext);
   const [servers] = useCollection(collection(db, "serverList"));
-  const { serverInfo, setServerInfo } = useContext(ServerContext);
   const [displayName, setDisplayName] = useState("");
   const [isAuthenticated, setIsAuthenticated] = useState(true);
 
@@ -70,35 +66,9 @@ const Home = () => {
       });
   };
 
-  const addServer = async () => {
-    const inputServerName = prompt("Add server name");
-    const inputChannelName = prompt("Add first channel name");
-    if (inputServerName && inputChannelName) {
-      try {
-        const Doc = await addDoc(collection(db, inputServerName), {
-          channelName: inputChannelName,
-        });
-        console.log("Collection created with name:", inputServerName);
-        console.log("Document written with ID: ", Doc.id);
-        await addDoc(collection(db, "serverList"), {
-          serverName: inputServerName,
-        });
-      } catch (error) {
-        console.log(error.message);
-      }
-    } else {
-      console.log("Can't create Server");
-    }
-  };
+  const addServer = async () => {};
 
   const setServer = (server) => {
-    setServerInfo({
-      serverName: server,
-    });
-    setChannelInfo({
-      channelId: null,
-      channelName: null,
-    });
     navigate(`/dashboard/${server}`);
   };
   tippy("#profile", {
@@ -130,7 +100,7 @@ const Home = () => {
               +
             </button> */}
 
-            {servers?.docs.map((server) => {
+            {/* {servers?.docs.map((server) => {
               return (
                 <div
                   className="flex flex-col cursor-pointer p-1 hover:bg-slate-800 transition-all ease-in-out rounded-lg"
@@ -139,7 +109,7 @@ const Home = () => {
                   <p>{server.data().serverName}</p>
                 </div>
               );
-            })}
+            })} */}
             <svg
               xmlns="http://www.w3.org/2000/svg"
               className="h-10 w-10 my-5 bg-slate-700 hover:rounded-xl hover:text-blue-500 transition-all cursor-pointer"
@@ -182,16 +152,16 @@ const Home = () => {
           </div>
         </div>
         <div>
-          <Server serverName={serverInfo.serverName} />
+          <Server />
         </div>
         <div className="chat-body">
           <div className="chat-body-header flex-grow justify-between">
             <div className="">
-              <p className="p-5">
+              {/* <p className="p-5">
                 {channelInfo.channelName
                   ? channelInfo.channelName
                   : "ChannelName"}
-              </p>
+              </p> */}
             </div>
             <div className="p-2 w-15 mt-2">
               <input
@@ -209,12 +179,12 @@ const Home = () => {
           <div className="chat-footer p-4 text-lg flex-grow ">
             <input
               name="send-message"
-              disabled={!channelInfo.channelId}
-              placeholder={
-                channelInfo.channelName
-                  ? "Message #" + channelInfo.channelName
-                  : "Select a channel"
-              }
+              // disabled={!channelInfo.channelId}
+              // placeholder={
+              //   channelInfo.channelName
+              //     ? "Message #" + channelInfo.channelName
+              //     : "Select a channel"
+              // }
               className="send-message w-full rounded-lg pl-5 bg-[#2d2d47] outline-none"
             />
           </div>
