@@ -13,17 +13,19 @@ datasource db {
 // Model for each message
 model Message{
   id String @id @default(auto()) @map("_id") @db.ObjectId
-  messageId String @db.ObjectId
-  timestamp DateTime
-  channelName Channel @relation(fields: [messageId], references: [id])
+  channelId String @db.ObjectId
+  timestamp String
+  channelName Channel @relation(fields: [channelId], references: [id])
   author String
+  message String
 }
 
 // Model For Channel
 model Channel{
   id String @id @default(auto()) @map("_id") @db.ObjectId
-  channelId  String @db.ObjectId
-  serverName Server @relation(fields: [channelId], references: [id])
+  serverId  String @db.ObjectId
+  channelName String
+  serverName Server @relation(fields: [serverId], references: [id])
   messages Message[]
 }
 
