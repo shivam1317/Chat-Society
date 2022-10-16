@@ -6,4 +6,4 @@ router.get("/", function (req, res, next) {
   res.render("index", { title: "Devcord" });
 });
 
-module.exports = router;
+odule.exports = router;
