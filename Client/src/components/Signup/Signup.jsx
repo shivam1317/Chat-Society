@@ -73,7 +73,9 @@ const Signup = () => {
       console.log("trying user auth");
 
       const user = await createUserWithEmailAndPassword(auth, email, password);
-      await updateProfile(auth.currentUser, { displayName: username });
+      await updateProfile(auth.currentUser, {
+        displayName: username,
+      });
       console.log(user);
       toast.update(id, {
         render: "Login successfull",
@@ -110,6 +112,7 @@ const Signup = () => {
     try {
       const provider = new GoogleAuthProvider();
       const userDetail = await signInWithPopup(auth, provider);
+
       console.log(userDetail.user);
       toast.update(id, {
         render: "Login successfull",

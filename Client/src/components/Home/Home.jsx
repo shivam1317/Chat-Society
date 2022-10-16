@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "./Home.css";
-import { signOut, onAuthStateChanged } from "firebase/auth";
+import { signOut, onAuthStateChanged, updateProfile } from "firebase/auth";
 import { auth, db } from "../../firebase-config";
 import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
@@ -86,6 +86,8 @@ const Home = () => {
       } catch (error) {
         console.log(error.message);
       }
+    } else {
+      console.log("Can't create Server");
     }
   };
 
@@ -128,6 +130,16 @@ const Home = () => {
               +
             </button> */}
 
+            {servers?.docs.map((server) => {
+              return (
+                <div
+                  className="flex flex-col cursor-pointer p-1 hover:bg-slate-800 transition-all ease-in-out rounded-lg"
+                  onClick={() => setServer(server.data().serverName)}
+                >
+                  <p>{server.data().serverName}</p>
+                </div>
+              );
+            })}
             <svg
               xmlns="http://www.w3.org/2000/svg"
               className="h-10 w-10 my-5 bg-slate-700 hover:rounded-xl hover:text-blue-500 transition-all cursor-pointer"
@@ -143,17 +155,6 @@ const Home = () => {
                 d="M12 4v16m8-8H4"
               />
             </svg>
-
-            {servers?.docs.map((server) => {
-              return (
-                <div
-                  className="flex flex-col cursor-pointer p-1 hover:bg-slate-800 transition-all ease-in-out rounded-lg"
-                  onClick={() => setServer(server.data().serverName)}
-                >
-                  <p>{server.data().serverName}</p>
-                </div>
-              );
-            })}
           </div>
           <div className="mt-auto flex justify-center flex-col items-center">
             {/* <p className="text-xs">{displayName}</p> */}
