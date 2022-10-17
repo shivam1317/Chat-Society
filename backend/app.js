@@ -22,8 +22,7 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
 app.use("/api", serverRouter);
-app.use("/users", usersRouter);
-app.use("/channel", channelRouter);
+app.use("/channelapi", channelRouter);
 app.use("/msgapi", messageRouter);
 
 // catch 404 and forward to error handler
