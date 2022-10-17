@@ -7,5 +7,5 @@ const {
 } = require("../controllers/ChannelController");
 
 router.route("/createchannel").post(createChannel);
-router.route("/channels").get(getChannelList);
+router.route("/channels/:id").get(getChannelList);
 module.exports = router;
