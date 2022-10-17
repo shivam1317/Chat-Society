@@ -10,6 +10,7 @@ import { useContext } from "react";
 import { ChannelContext } from "../Contexts/ChannelContext";
 import { ServerContext } from "../Contexts/ServerContext";
 import Server from "../Server/Server";
+import axios from "axios";
 import { useCollection } from "react-firebase-hooks/firestore";
 import tippy from "tippy.js";
 import "tippy.js/dist/tippy.css";
@@ -66,7 +67,29 @@ const Home = () => {
       });
   };
 
-  const addServer = async () => {};
+  const addServer = async () => {
+    try {
+      const serverName = prompt("Add the server name");
+      console.log("Adding server", serverName);
+      // http://localhost:5000/api/createserver
+      const res = await axios.post(
+        "http://localhost:5000/api/createserver",
+        JSON.stringify({
+          Name: serverName,
+        }),
+        {
+          headers: {
+            "content-type": "application/json",
+          },
+        }
+      );
+      console.log(res);
+      // const response = await res.json();
+      // console.log(response);
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
 
   const setServer = (server) => {
     navigate(`/dashboard/${server}`);
