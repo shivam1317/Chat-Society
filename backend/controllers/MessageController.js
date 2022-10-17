@@ -23,7 +23,12 @@ exports.sendMsg = async (req, res, next) => {
 
 exports.getMessages = async (req, res, next) => {
   try {
-    const msgs = await prisma.message.findMany();
+    const { channelId } = req.params;
+    const msgs = await prisma.message.findMany({
+      where: {
+        channelId,
+      },
+    });
     res.json(msgs);
   } catch (error) {
     res.json(error.message);

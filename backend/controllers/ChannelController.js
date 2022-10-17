@@ -2,7 +2,12 @@ const prisma = require("../prisma/index");
 
 exports.getChannelList = async (req, res, next) => {
   try {
-    const channels = await prisma.channel.findMany();
+    const { id } = req.params;
+    const channels = await prisma.channel.findMany({
+      where: {
+        serverId: id,
+      },
+    });
     res.json(channels);
   } catch (error) {
     res.json(error.message);
