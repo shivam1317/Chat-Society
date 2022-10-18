@@ -6,6 +6,7 @@ import Signup from "./components/Signup/Signup";
 import { useState } from "react";
 import { ChannelContext } from "./components/Contexts/ChannelContext";
 import { ServerContext } from "./components/Contexts/ServerContext";
+import Server from "./components/Server/Server";
 
 function App() {
   const [channelInfo, setChannelInfo] = useState({
@@ -13,7 +14,7 @@ function App() {
     channelName: null,
   });
   const [serverInfo, setServerInfo] = useState({
-    serverName: "Myserver",
+    serverName: "wearenoobs",
   });
 
   return (
@@ -25,11 +26,8 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Signup />} />
             <Route path="/dashboard" element={<Home />} />
-            <Route path="/dashboard/:serverName" element={<Home />} />
-            <Route
-              path="/dashboard/:serverName/:channelId"
-              element={<Home />}
-            />
+            <Route path="/dashboard/:serverId" element={<Home />} />
+            <Route path="/dashboard/:serverId/:channelId" element={<Home />} />
           </Routes>
         </ChannelContext.Provider>
       </ServerContext.Provider>
