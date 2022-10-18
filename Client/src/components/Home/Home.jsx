@@ -11,14 +11,14 @@ import { ChannelContext } from "../Contexts/ChannelContext";
 import { ServerContext } from "../Contexts/ServerContext";
 import Server from "../Server/Server";
 import axios from "axios";
-import { useCollection } from "react-firebase-hooks/firestore";
 import tippy from "tippy.js";
 import "tippy.js/dist/tippy.css";
 import "tippy.js/animations/scale-extreme.css";
 
 const Home = () => {
-  const [servers] = useCollection(collection(db, "serverList"));
+  const [servers, setServers] = useState([]);
   const [displayName, setDisplayName] = useState("");
+  const { serverInfo, setServerInfo } = useContext(ServerContext);
   const [isAuthenticated, setIsAuthenticated] = useState(true);
 
   const navigate = useNavigate();
@@ -34,7 +34,8 @@ const Home = () => {
     if (!isAuthenticated) {
       navigate("/login");
     }
-  });
+    showServers();
+  }, []);
   const logoutUser = () => {
     const id = toast.loading("Logging out...");
     signOut(auth)
@@ -67,23 +68,33 @@ const Home = () => {
       });
   };
 
+  const showServers = async () => {
+    try {
+      const res = await axios.get("http://localhost:5000/api/getserver");
+      // console.log("servers are ", res);
+      setServers(res.data);
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
+
   const addServer = async () => {
     try {
       const serverName = prompt("Add the server name");
-      console.log("Adding server", serverName);
-      // http://localhost:5000/api/createserver
-      const res = await axios.post(
-        "http://localhost:5000/api/createserver",
-        JSON.stringify({
-          Name: serverName,
-        }),
-        {
-          headers: {
-            "content-type": "application/json",
-          },
-        }
-      );
-      console.log(res);
+      if (serverName !== "") {
+        const res = await axios.post(
+          "http://localhost:5000/api/createserver",
+          JSON.stringify({
+            Name: serverName,
+          }),
+          {
+            headers: {
+              "content-type": "application/json",
+            },
+          }
+        );
+        showServers();
+      }
       // const response = await res.json();
       // console.log(response);
     } catch (error) {
@@ -91,8 +102,11 @@ const Home = () => {
     }
   };
 
-  const setServer = (server) => {
-    navigate(`/dashboard/${server}`);
+  const setServer = (serverid, servername) => {
+    setServerInfo({
+      serverName: servername,
+    });
+    navigate(`/dashboard/${serverid}`);
   };
   tippy("#profile", {
     content: displayName,
@@ -123,16 +137,16 @@ const Home = () => {
               +
             </button> */}
 
-            {/* {servers?.docs.map((server) => {
+            {servers?.map((server) => {
               return (
                 <div
                   className="flex flex-col cursor-pointer p-1 hover:bg-slate-800 transition-all ease-in-out rounded-lg"
-                  onClick={() => setServer(server.data().serverName)}
+                  onClick={() => setServer(server.id, server.Name)}
                 >
-                  <p>{server.data().serverName}</p>
+                  <p>{server.Name}</p>
                 </div>
               );
-            })} */}
+            })}
             <svg
               xmlns="http://www.w3.org/2000/svg"
               className="h-10 w-10 my-5 bg-slate-700 hover:rounded-xl hover:text-blue-500 transition-all cursor-pointer"
@@ -175,7 +189,7 @@ const Home = () => {
           </div>
         </div>
         <div>
-          <Server />
+          <Server serverName={serverInfo.serverName} />
         </div>
         <div className="chat-body">
           <div className="chat-body-header flex-grow justify-between">
