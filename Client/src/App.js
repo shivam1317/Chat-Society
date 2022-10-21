@@ -15,6 +15,7 @@ function App() {
   });
   const [serverInfo, setServerInfo] = useState({
     serverName: "wearenoobs",
+    serverId: "634c006b3ffcbff96aa486b7",
   });
 
   return (

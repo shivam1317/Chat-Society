@@ -14,7 +14,8 @@ import "tippy.js/animations/scale-extreme.css";
 const Server = ({ serverName }) => {
   const [channels, setChannels] = useState([]);
   const { serverInfo } = useContext(ServerContext);
-  const { serverId } = useParams();
+  // const { serverId } = useParams();
+  const serverId = serverInfo.serverId;
   useEffect(() => {
     showChannels();
   }, [serverInfo]);
@@ -45,7 +46,6 @@ const Server = ({ serverName }) => {
       console.log(error.message);
     }
   };
-  // showChannels();
   tippy("#addChannel", {
     content: "Add Channel",
     animation: "scale-extreme",
@@ -72,7 +72,7 @@ const Server = ({ serverName }) => {
         </svg>
       </div>
       <div className="flex flex-col space-y-2 mt-3 overflow-y-scroll scrollbar-hide">
-        {channels.map((channel) => {
+        {channels?.map((channel) => {
           {
             /* <Channel
             id={doc.id}
