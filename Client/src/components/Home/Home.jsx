@@ -4,6 +4,7 @@ import { signOut, onAuthStateChanged, updateProfile } from "firebase/auth";
 import { auth, db } from "../../firebase-config";
 import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
+import { useParams } from "react-router-dom";
 import "react-toastify/dist/ReactToastify.css";
 import { collection, addDoc } from "firebase/firestore";
 import { useContext } from "react";
@@ -20,6 +21,7 @@ const Home = () => {
   const [displayName, setDisplayName] = useState("");
   const { serverInfo, setServerInfo } = useContext(ServerContext);
   const [isAuthenticated, setIsAuthenticated] = useState(true);
+  // const {channelId} = useParams();
 
   const navigate = useNavigate();
   onAuthStateChanged(auth, (currUser) => {
@@ -105,6 +107,7 @@ const Home = () => {
   const setServer = (serverid, servername) => {
     setServerInfo({
       serverName: servername,
+      serverId: serverid,
     });
     navigate(`/dashboard/${serverid}`);
   };
