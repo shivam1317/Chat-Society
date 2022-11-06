@@ -42,8 +42,26 @@ app.use(function (err, req, res, next) {
   res.render("error");
 });
 
-app.listen(5000, () => {
-  console.log(`server started on port 5000..`);
+// creating io
+const http = require("http");
+const server = http.createServer(app);
+const { Server } = require("socket.io");
+
+const io = new Server(server, {
+  cors: {
+    origin: "http://localhost:3000",
+    methods: ["GET", "POST"],
+  },
 });
 
+io.on("connection",(socket)=>{
+  console.log(`user with ${socket.id} socketID connected :)`)
+  socket.on("send_message", (data) => {
+      console.log(`author : ${data.author} | message : ${data.message} | channel Name: ${data.channelName} | time: ${data.timestamp}`)  
+  });
+})
+// app.listen(5000, () => {
+//   console.log(`server started on port 5000..`);
+// });
+server.listen(5000);
 module.exports = app;
