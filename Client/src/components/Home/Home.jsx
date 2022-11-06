@@ -19,6 +19,7 @@ import "tippy.js/animations/scale-extreme.css";
 const Home = () => {
   const [servers, setServers] = useState([]);
   const [displayName, setDisplayName] = useState("");
+  const [photoURL, setPhotoURL] = useState("#");
   const { serverInfo, setServerInfo } = useContext(ServerContext);
   const [isAuthenticated, setIsAuthenticated] = useState(true);
   // const {channelId} = useParams();
@@ -27,6 +28,7 @@ const Home = () => {
   onAuthStateChanged(auth, (currUser) => {
     if (currUser) {
       setDisplayName(currUser.displayName);
+      setPhotoURL(currUser.photoURL);
       setIsAuthenticated(true);
     } else {
       setIsAuthenticated(false);
@@ -36,6 +38,7 @@ const Home = () => {
     if (!isAuthenticated) {
       navigate("/login");
     }
+    // console.log("User info is", userInfo);
     showServers();
   }, []);
   const logoutUser = () => {
@@ -111,6 +114,7 @@ const Home = () => {
     });
     navigate(`/dashboard/${serverid}`);
   };
+  // Tooltip for profile pic
   tippy("#profile", {
     content: displayName,
     animation: "scale-extreme",
@@ -173,21 +177,7 @@ const Home = () => {
               className="hover:text-blue-500 transition-all"
             >
               <ToastContainer />
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-6 w-6"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={2}
-                id="profile"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                />
-              </svg>
+              <img src={photoURL} alt="profile" id="profile" />
             </button>
           </div>
         </div>

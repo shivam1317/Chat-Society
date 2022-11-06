@@ -24,7 +24,7 @@ exports.createChannel = async (req, res, next) => {
       },
     });
     res.json({
-      msg: "You just created a server!",
+      msg: "You just created a channel!",
       result,
     });
   } catch (error) {
