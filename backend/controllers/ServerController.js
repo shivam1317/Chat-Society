@@ -12,7 +12,7 @@ exports.getServerList = async (req, res, next) => {
 exports.addServer = async (req, res, next) => {
   try {
     const { Name } = req.body;
-    console.log("Backend got name as ", Name);
+    // console.log("Backend got name as ", Name);
     const result = await prisma.server.create({
       data: {
         Name,

@@ -6,6 +6,7 @@ import {
   onAuthStateChanged,
   GoogleAuthProvider,
   signInWithPopup,
+  updateProfile,
 } from "firebase/auth";
 import { auth } from "../../firebase-config.js";
 import { ToastContainer, toast } from "react-toastify";
@@ -79,6 +80,10 @@ const Login = () => {
     try {
       const provider = new GoogleAuthProvider();
       const userDetail = await signInWithPopup(auth, provider);
+      await updateProfile(auth.currentUser, {
+        photoURL:
+          "https://source.boringavatars.com/beam/60?colors=264653,2a9d8f,e9c46a,f4a261,e76f51",
+      });
       console.log(userDetail.user);
       toast.update(id, {
         render: "Login successful",
