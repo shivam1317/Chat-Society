@@ -8,7 +8,7 @@ import { useParams } from "react-router-dom";
 import "react-toastify/dist/ReactToastify.css";
 import { collection, addDoc } from "firebase/firestore";
 import { useContext } from "react";
-import { ChannelContext } from "../Contexts/ChannelContext";
+
 import { ServerContext } from "../Contexts/ServerContext";
 import Server from "../Server/Server";
 import axios from "axios";
