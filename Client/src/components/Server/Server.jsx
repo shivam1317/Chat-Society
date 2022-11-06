@@ -5,6 +5,8 @@ import { collection, addDoc } from "firebase/firestore";
 import { useCollection } from "react-firebase-hooks/firestore";
 import { db } from "../../firebase-config";
 import Channel from "../Channel/Channel";
+import { ChannelContext } from "../Contexts/ChannelContext";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "../Home/Home.css";
 import tippy from "tippy.js";
@@ -12,8 +14,10 @@ import "tippy.js/dist/tippy.css";
 import "tippy.js/animations/scale-extreme.css";
 
 const Server = ({ serverName }) => {
+  const navigate = useNavigate();
   const [channels, setChannels] = useState([]);
   const { serverInfo } = useContext(ServerContext);
+  const { channelInfo, setChannelInfo } = useContext(ChannelContext);
   // const { serverId } = useParams();
   const serverId = serverInfo.serverId;
   useEffect(() => {
@@ -45,6 +49,14 @@ const Server = ({ serverName }) => {
     } catch (error) {
       console.log(error.message);
     }
+  };
+
+  const setChannel = (id, sid, cname) => {
+    setChannelInfo({
+      channelId: id,
+      channelName: cname,
+    });
+    navigate(`/dashboard/${sid}/${id}`);
   };
   tippy("#addChannel", {
     content: "Add Channel",
@@ -80,7 +92,18 @@ const Server = ({ serverName }) => {
             key={doc.id}
           /> */
           }
-          return <div>{channel.channelName}</div>;
+          {
+            /*  */
+          }
+          return (
+            <div
+              onClick={() =>
+                setChannel(channel.id, channel.serverId, channel.channelName)
+              }
+            >
+              {channel.channelName}
+            </div>
+          );
         })}
       </div>
     </div>
