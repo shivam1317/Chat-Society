@@ -3,7 +3,6 @@ import { useParams } from "react-router-dom";
 import { ServerContext } from "../Contexts/ServerContext";
 import { collection, addDoc } from "firebase/firestore";
 import { useCollection } from "react-firebase-hooks/firestore";
-import { db } from "../../firebase-config";
 import Channel from "../Channel/Channel";
 import { ChannelContext } from "../Contexts/ChannelContext";
 import { useNavigate } from "react-router-dom";
