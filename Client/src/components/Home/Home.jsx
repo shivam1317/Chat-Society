@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import "./Home.css";
 import { signOut, onAuthStateChanged, updateProfile } from "firebase/auth";
-import { auth, db } from "../../firebase-config";
+import { auth, } from "../../firebase-config";
 import { useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import { useParams } from "react-router-dom";
