@@ -1,23 +1,26 @@
 const prisma = require("../prisma/index");
-
-exports.sendMsg = async (req, res, next) => {
+exports.sendMsg = async (messageData) => {
   try {
-    const { message, channelId, author } = req.body;
-    const date = new Date();
+    console.log(
+      `author : ${messageData.author} | message : ${messageData.message} | channelId: ${messageData.channelId} | time: ${messageData.timestamp}`
+    );
+    // const { message, channelId, author } = req.body;
     const result = await prisma.message.create({
       data: {
-        message,
-        author,
-        channelName: { connect: { id: channelId } },
-        timestamp: date.toLocaleString(),
+        message: messageData.message,
+        author: messageData.author,
+        channelName: { connect: { id: messageData.channelId } },
+        timestamp: messageData.timestamp,
       },
     });
-    res.json({
-      msg: "Your msg is successfully sent!",
-      result,
-    });
+    console.log(result);
+    // res.json({
+    //   msg: "Your msg is successfully sent!",
+    //   result,
+    // });
   } catch (error) {
-    res.json(error.message);
+    // res.json(error.message);
+    console.log(error)
   }
 };
 

@@ -8,21 +8,25 @@ import { useParams } from "react-router-dom";
 import "react-toastify/dist/ReactToastify.css";
 import { collection, addDoc } from "firebase/firestore";
 import { useContext } from "react";
-
+import { ChannelContext } from "../Contexts/ChannelContext";
 import { ServerContext } from "../Contexts/ServerContext";
 import Server from "../Server/Server";
 import axios from "axios";
 import tippy from "tippy.js";
 import "tippy.js/dist/tippy.css";
 import "tippy.js/animations/scale-extreme.css";
+import { socket } from "../../IO";
 
 const Home = () => {
+  // console.log(socket);
   const [servers, setServers] = useState([]);
   const [displayName, setDisplayName] = useState("");
   const [photoURL, setPhotoURL] = useState("#");
   const { serverInfo, setServerInfo } = useContext(ServerContext);
+  const { channelInfo, setChannelInfo } = useContext(ChannelContext);
   const [isAuthenticated, setIsAuthenticated] = useState(true);
-  // const {channelId} = useParams();
+  const [currentMessage, setCurrentMessage] = useState("");
+  const { channelId } = useParams();
 
   const navigate = useNavigate();
   onAuthStateChanged(auth, (currUser) => {
@@ -38,9 +42,29 @@ const Home = () => {
     if (!isAuthenticated) {
       navigate("/login");
     }
-    // console.log("User info is", userInfo);
     showServers();
   }, []);
+
+  const sendMessage = async () => {
+    // alert('we are in sendMessage')
+    // alert(`current message is : ${currentMessage}`)
+    // console.log('in sendMessage')
+    // console.log(`your socket: ${socket}`)
+    const date = new Date();
+    if (currentMessage !== "") {
+      // console.log(currentMessage)
+      const messageData = {
+        message: currentMessage,
+        author: displayName,
+        channelId: channelId,
+        timestamp: date.toLocaleString(),
+      };
+      await socket.emit("send_message", messageData);
+      // setMessageList((list) => [...list, messageData]);
+      setCurrentMessage("");
+    }
+  };
+
   const logoutUser = () => {
     const id = toast.loading("Logging out...");
     signOut(auth)
@@ -208,6 +232,15 @@ const Home = () => {
           </div>
           <div className="chat-footer p-4 text-lg flex-grow ">
             <input
+              type="text"
+              value={currentMessage}
+              placeholder="Hey..."
+              onChange={(event) => {
+                setCurrentMessage(event.target.value);
+              }}
+              onKeyPress={(event) => {
+                event.key === "Enter" && sendMessage();
+              }}
               name="send-message"
               // disabled={!channelInfo.channelId}
               // placeholder={
