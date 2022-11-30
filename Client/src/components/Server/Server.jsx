@@ -96,6 +96,7 @@ const Server = ({ serverName }) => {
           }
           return (
             <div
+              key={channel.id}
               onClick={() =>
                 setChannel(channel.id, channel.serverId, channel.channelName)
               }

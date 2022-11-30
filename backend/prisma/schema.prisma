@@ -14,7 +14,7 @@ datasource db {
 model Message{
   id String @id @default(auto()) @map("_id") @db.ObjectId
   channelId String @db.ObjectId
-  timestamp String
+  timestamp DateTime @default(now())
   channelName Channel @relation(fields: [channelId], references: [id])
   author String
   message String
