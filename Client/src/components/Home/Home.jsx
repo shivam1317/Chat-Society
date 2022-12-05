@@ -21,6 +21,7 @@ import { socket } from "../../IO";
 const Home = () => {
   // console.log(socket);
   const [servers, setServers] = useState([]);
+  const [messages, setMessages] = useState([]);
   const [displayName, setDisplayName] = useState("");
   const [photoURL, setPhotoURL] = useState("#");
   const { serverInfo, setServerInfo } = useContext(ServerContext);
@@ -45,13 +46,20 @@ const Home = () => {
     const res = await fetch(
       `http://localhost:5000/msgapi/msgs/${channelId}?take=${pageParam}`
     );
-    console.log(`response ka pradarshan: `);
-    console.log(res);
+    // console.log(`response ka pradarshan: `);
+    // console.log(res);
     // return res.json().msgs;
     const msgs = await res.json();
-    console.log("messages : ");
+    console.log("messages from fetchProjects: ");
     console.log(msgs);
     return msgs;
+  };
+  const fetchAllMsgs = async () => {
+    const res = await fetch(`http://localhost:5000/msgapi/msgs/${channelId}`);
+    const msgs = await res.json();
+    console.log("messages from fetchAllMsgs");
+    console.log(msgs);
+    setMessages(msgs);
   };
 
   const {
@@ -69,7 +77,6 @@ const Home = () => {
     queryKey: [`messages`],
     queryFn: fetchProjects,
     getNextPageParam: (lastPage, pages) => {
-      console.log(lastPage);
       return lastPage?.next;
     },
     refetchOnMount: false,
@@ -83,11 +90,13 @@ const Home = () => {
       navigate("/login");
     }
     showServers();
-    fetchProjects({ pageParam: 0 });
+    fetchAllMsgs();
   }, []);
 
   useEffect(() => {
-    refetch();
+    console.log("Current messages:!");
+    console.log(messages);
+    fetchNextPage({ pageParam: messages?.length });
   }, [channelId]);
 
   const sendMessage = async () => {
@@ -102,7 +111,7 @@ const Home = () => {
     }
     socket.on("received_message", (data) => {
       // alert(data.data);
-      refetch();
+      fetchNextPage();
     });
   };
 
@@ -270,22 +279,20 @@ const Home = () => {
               />
             </div>
           </div>
-          <div className="chat-display">
+          <div className="chat-display h-full overflow-y-scroll">
             {/* <p className="bg-[#2d2d47] border-2 border-transparent rounded-xl inline px-2">
                 Join a channel to show chats
               </p> */}
-            <div className="chat-body mx-3 my-3 overflow-y-scroll">
-              {data?.pages.map((group, i) => {
-                {
-                  console.log("tis iz gurup");
-                  console.log(group);
-                }
+            <div className="h-full mx-3 my-3">
+              {messages?.msgs?.map((group, i) => {
                 return (
                   <Fragment key={i}>
                     {group?.msgs?.map((messageData) => {
                       {
-                        console.log("dis ij messageData");
-                        console.log(messageData);
+                        {
+                          /* console.log("dis ij messageData");
+                        console.log(messageData); */
+                        }
                         // console.log(`current channel: ${channelId} | messageChannel: ${messageData.channelId}`)
                       }
                       return (
