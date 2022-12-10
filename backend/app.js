@@ -48,6 +48,7 @@ io.on("connection", (socket) => {
 var serverRouter = require("./routes/serverRoute");
 let channelRouter = require("./routes/channelRoute");
 let messageRouter = require("./routes/messageRoute");
+const prisma = require("./prisma/index.js");
 
 app.use("/api", serverRouter);
 app.use("/channelapi", channelRouter);
@@ -72,5 +73,10 @@ app.use(function (err, req, res, next) {
 // app.listen(5000, () => {
 //   console.log(`server started on port 5000..`);
 // });
+// const deletekarde = async () => {
+//   await prisma.message.deleteMany({});
+//   console.log("Deleted!");
+// };
+// deletekarde();
 server.listen(5000);
 module.exports = app;
