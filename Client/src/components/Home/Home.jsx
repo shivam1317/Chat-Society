@@ -22,6 +22,7 @@ const Home = () => {
   // console.log(socket);
   const [servers, setServers] = useState([]);
   const [messages, setMessages] = useState([]);
+  const [displayMessages, setDisplayMessages] = useState([]);
   const [displayName, setDisplayName] = useState("");
   const [photoURL, setPhotoURL] = useState("#");
   const { serverInfo, setServerInfo } = useContext(ServerContext);
@@ -56,10 +57,20 @@ const Home = () => {
   };
   const fetchAllMsgs = async () => {
     const res = await fetch(`http://localhost:5000/msgapi/msgs/${channelId}`);
-    const msgs = await res.json();
-    console.log("messages from fetchAllMsgs");
-    console.log(msgs);
-    setMessages(msgs);
+    const data = await res.json();
+    setMessages(data?.msgs);
+    localStorage.setItem("messages", JSON.stringify(data?.msgs));
+    setDisplayMessages(data?.msgs.slice(-10));
+  };
+  const fetchOneMessage = async () => {
+    const res = await fetch(
+      `http://localhost:5000/msgapi/msgs/${channelId}?take=1`
+    );
+    const data = await res.json();
+    const allMsg = JSON.parse(localStorage.getItem("messages"));
+    let newList = allMsg.concat(data?.msgs);
+    localStorage.setItem("messages", JSON.stringify(newList));
+    setDisplayMessages(newList.slice(-10));
   };
 
   const {
@@ -82,7 +93,7 @@ const Home = () => {
     refetchOnMount: false,
     refetchOnReconnect: false,
     refetchOnWindowFocus: false,
-    enabled: channelId !== undefined,
+    enabled: false,
   });
 
   useEffect(() => {
@@ -90,15 +101,18 @@ const Home = () => {
       navigate("/login");
     }
     showServers();
-    fetchAllMsgs();
   }, []);
 
   useEffect(() => {
-    console.log("Current messages:!");
-    console.log(messages);
-    fetchNextPage({ pageParam: messages?.length });
+    fetchAllMsgs();
+    // fetchNextPage({ pageParam: messages?.length });
   }, [channelId]);
 
+  useEffect(() => {
+    socket.on("received_message", (data) => {
+      fetchOneMessage();
+    });
+  }, []);
   const sendMessage = async () => {
     if (currentMessage !== "") {
       const messageData = {
@@ -109,10 +123,6 @@ const Home = () => {
       socket.emit("send_message", messageData);
       setCurrentMessage("");
     }
-    socket.on("received_message", (data) => {
-      // alert(data.data);
-      fetchNextPage();
-    });
   };
 
   const logoutUser = () => {
@@ -279,34 +289,21 @@ const Home = () => {
               />
             </div>
           </div>
-          <div className="chat-display h-full overflow-y-scroll">
+          <div className="h-full">
             {/* <p className="bg-[#2d2d47] border-2 border-transparent rounded-xl inline px-2">
                 Join a channel to show chats
               </p> */}
-            <div className="h-full mx-3 my-3">
-              {messages?.msgs?.map((group, i) => {
+            <div className="h-70% mx-3 overflow-y-scroll">
+              {displayMessages?.map((messageData, i) => {
                 return (
                   <Fragment key={i}>
-                    {group?.msgs?.map((messageData) => {
-                      {
-                        {
-                          /* console.log("dis ij messageData");
-                        console.log(messageData); */
-                        }
-                        // console.log(`current channel: ${channelId} | messageChannel: ${messageData.channelId}`)
-                      }
-                      return (
-                        channelId === messageData.channelId && (
-                          <div
-                            className="messageCard flex flex-col"
-                            key={messageData.id}
-                          >
-                            <div className="metaData">{messageData.author}</div>
-                            <div className="message">{messageData.message}</div>
-                          </div>
-                        )
-                      );
-                    })}
+                    <div
+                      className="messageCard flex flex-col"
+                      key={messageData?.id}
+                    >
+                      <div className="metaData">{messageData?.author}</div>
+                      <div className="message">{messageData?.message}</div>
+                    </div>
                   </Fragment>
                 );
               })}
@@ -322,7 +319,7 @@ const Home = () => {
               <input
                 type="text"
                 value={currentMessage}
-                placeholder="Hey..."
+                // placeholder="Hey..."
                 onChange={(event) => {
                   setCurrentMessage(event.target.value);
                 }}
@@ -331,11 +328,11 @@ const Home = () => {
                 // }}
                 name="send-message"
                 // disabled={!channelInfo.channelId}
-                // placeholder={
-                //   channelInfo.channelName
-                //     ? "Message #" + channelInfo.channelName
-                //     : "Select a channel"
-                // }
+                placeholder={
+                  channelInfo.channelName
+                    ? "Message #" + channelInfo.channelName
+                    : "Select a channel"
+                }
                 className="send-message w-full rounded-lg pl-5 bg-[#2d2d47] outline-none"
               />
               <input type="submit" hidden={true} />
