@@ -50,7 +50,6 @@ exports.getMessages = async (req, res, next) => {
       },
     });
     console.log("else wala block chaala vai");
-    // }
     let flag = parseInt(take) && !Number.isNaN(parseInt(take));
     const data = {
       msgs: flag ? msgs.slice(-1) : msgs,

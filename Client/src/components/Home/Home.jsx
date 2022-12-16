@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useState } from "react";
+import React, { Fragment, useEffect, useState, useRef } from "react";
 import "./Home.css";
 import { signOut, onAuthStateChanged, updateProfile } from "firebase/auth";
 import { auth } from "../../firebase-config";
@@ -17,12 +17,14 @@ import tippy from "tippy.js";
 import "tippy.js/dist/tippy.css";
 import "tippy.js/animations/scale-extreme.css";
 import { socket } from "../../IO";
+import InfiniteScroll from "react-infinite-scroll-component";
 
 const Home = () => {
   // console.log(socket);
   const [servers, setServers] = useState([]);
-  const [messages, setMessages] = useState([]);
   const [displayMessages, setDisplayMessages] = useState([]);
+  const [sliceCount, setSliceCount] = useState(-15);
+  const [hasMore, setHasMore] = useState(true);
   const [displayName, setDisplayName] = useState("");
   const [photoURL, setPhotoURL] = useState("#");
   const { serverInfo, setServerInfo } = useContext(ServerContext);
@@ -30,6 +32,8 @@ const Home = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(true);
   const [currentMessage, setCurrentMessage] = useState("");
   const { channelId } = useParams();
+  const [channelIdState, setChannelIdState] = useState(channelId);
+  const chatRef = useRef(null);
 
   const navigate = useNavigate();
   onAuthStateChanged(auth, (currUser) => {
@@ -56,21 +60,40 @@ const Home = () => {
     return msgs;
   };
   const fetchAllMsgs = async () => {
+    setSliceCount(-15);
+    setHasMore(true);
     const res = await fetch(`http://localhost:5000/msgapi/msgs/${channelId}`);
     const data = await res.json();
-    setMessages(data?.msgs);
     localStorage.setItem("messages", JSON.stringify(data?.msgs));
-    setDisplayMessages(data?.msgs.slice(-10));
+    setDisplayMessages(data?.msgs.slice(-15));
   };
-  const fetchOneMessage = async () => {
+  const fetchNextMessages = () => {
+    console.log("fetchNextMessages got triggered with slice value", sliceCount);
+    const allMsg = JSON.parse(localStorage.getItem("messages"));
+    let newMsgs = allMsg?.slice(sliceCount - 15, sliceCount);
+    if (newMsgs.length === 0) {
+      setHasMore(false);
+    } else {
+      let temp = [...newMsgs, ...displayMessages];
+      setDisplayMessages(temp);
+      setSliceCount(sliceCount - 15);
+      let latestMsg = document.getElementById(12);
+      // console.log("Latest msg is");
+      // console.log(latestMsg);
+      latestMsg.scrollIntoView({
+        block: "start",
+      });
+    }
+  };
+  const fetchOneMessage = async (newChannelId) => {
     const res = await fetch(
-      `http://localhost:5000/msgapi/msgs/${channelId}?take=1`
+      `http://localhost:5000/msgapi/msgs/${newChannelId}?take=1`
     );
     const data = await res.json();
     const allMsg = JSON.parse(localStorage.getItem("messages"));
-    let newList = allMsg.concat(data?.msgs);
+    let newList = allMsg?.concat(data?.msgs);
+    setDisplayMessages(newList?.slice(sliceCount));
     localStorage.setItem("messages", JSON.stringify(newList));
-    setDisplayMessages(newList.slice(-10));
   };
 
   const {
@@ -104,13 +127,16 @@ const Home = () => {
   }, []);
 
   useEffect(() => {
+    localStorage.clear();
+    scrollToBottom();
+    // console.log("Current correct channelId", channelId);
     fetchAllMsgs();
-    // fetchNextPage({ pageParam: messages?.length });
   }, [channelId]);
 
   useEffect(() => {
     socket.on("received_message", (data) => {
-      fetchOneMessage();
+      // console.log("Message received in channelId", data.channelId);
+      fetchOneMessage(data.channelId);
     });
   }, []);
   const sendMessage = async () => {
@@ -122,6 +148,7 @@ const Home = () => {
       };
       socket.emit("send_message", messageData);
       setCurrentMessage("");
+      scrollToBottom();
     }
   };
 
@@ -191,15 +218,19 @@ const Home = () => {
     }
   };
 
-  // const redirect = () =>{
-  //     navigate("/profile")
-  // }
   const setServer = (serverid, servername) => {
     setServerInfo({
       serverName: servername,
       serverId: serverid,
     });
     navigate(`/dashboard/${serverid}`);
+  };
+
+  const scrollToBottom = () => {
+    chatRef.current.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
   };
   // Tooltip for profile pic
   tippy("#profile", {
@@ -289,17 +320,31 @@ const Home = () => {
               />
             </div>
           </div>
-          <div className="h-full">
-            {/* <p className="bg-[#2d2d47] border-2 border-transparent rounded-xl inline px-2">
+          {/* <p className="bg-[#2d2d47] border-2 border-transparent rounded-xl inline px-2">
                 Join a channel to show chats
               </p> */}
-            <div className="h-70% mx-3 overflow-y-scroll">
+          <div
+            className="h-[80vh] mx-3 overflow-y-scroll flex flex-col-reverse scrollbar-hide"
+            id="scrollableDiv"
+          >
+            <InfiniteScroll
+              dataLength={displayMessages?.length}
+              next={fetchNextMessages}
+              datascrollableDivLength={displayMessages?.length}
+              // style={{ display: "flex", flexDirection: "column-reverse" }}
+              inverse={true}
+              hasMore={hasMore}
+              loader={<h4>Loading...</h4>}
+              scrollableTarget="scrollableDiv"
+              scrollThreshold={0.9}
+            >
               {displayMessages?.map((messageData, i) => {
                 return (
                   <Fragment key={i}>
                     <div
                       className="messageCard flex flex-col"
                       key={messageData?.id}
+                      id={i}
                     >
                       <div className="metaData">{messageData?.author}</div>
                       <div className="message">{messageData?.message}</div>
@@ -307,7 +352,8 @@ const Home = () => {
                   </Fragment>
                 );
               })}
-            </div>
+              <div className="pb-10" ref={chatRef} />
+            </InfiniteScroll>
           </div>
           <div className="chat-footer p-4 text-lg flex-grow ">
             <form
@@ -323,6 +369,7 @@ const Home = () => {
                 onChange={(event) => {
                   setCurrentMessage(event.target.value);
                 }}
+                // ref={inputReference}
                 // onKeyPress={(event) => {
                 //   event.key === "Enter" && sendMessage();
                 // }}
