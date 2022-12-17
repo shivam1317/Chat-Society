@@ -324,7 +324,7 @@ const Home = () => {
                 Join a channel to show chats
               </p> */}
           <div
-            className="h-[80vh] mx-3 overflow-y-scroll flex flex-col-reverse scrollbar-hide"
+            className="h-[80vh] mx-3 overflow-y-scroll flex flex-col-reverse"
             id="scrollableDiv"
           >
             <InfiniteScroll
@@ -342,11 +342,34 @@ const Home = () => {
                 return (
                   <Fragment key={i}>
                     <div
-                      className="messageCard flex flex-col"
+                      className={`messageCard flex flex-col border-2 border-[#16161e] rounded-r-[0.9rem] rounded-bl-[0.9rem] ${
+                        displayName === messageData?.author
+                          ? "bg-[#27273e]"
+                          : "bg-[#1E1E30]"
+                      } mt-2 p-2 w-fit`}
                       key={messageData?.id}
                       id={i}
                     >
-                      <div className="metaData">{messageData?.author}</div>
+                      <div className="metaData text-[#c0caf5] pb-2 text-[0.7rem] flex justify-between items-center">
+                        <div className="text-[1rem]">
+                          {displayName === messageData?.author
+                            ? "You"
+                            : messageData?.author}
+                        </div>
+                        <div className="ml-3 mt-1 text-gray-300">
+                          {new Date().toLocaleDateString() ===
+                          new Date(messageData?.timestamp).toLocaleDateString()
+                            ? `Today at ${new Date(
+                                messageData?.timestamp
+                              ).toLocaleTimeString()}`
+                            : `${new Date(
+                                messageData?.timestamp
+                              ).toLocaleDateString()} 
+                          ${new Date(
+                            messageData?.timestamp
+                          ).toLocaleTimeString()}`}
+                        </div>
+                      </div>
                       <div className="message">{messageData?.message}</div>
                     </div>
                   </Fragment>
