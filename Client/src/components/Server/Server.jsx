@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
 import { useParams } from "react-router-dom";
+import { HiOutlineChatAlt2 } from "react-icons/hi";
 import { ServerContext } from "../Contexts/ServerContext";
 import { collection, addDoc } from "firebase/firestore";
 import { useCollection } from "react-firebase-hooks/firestore";
@@ -11,10 +12,13 @@ import "../Home/Home.css";
 import tippy from "tippy.js";
 import "tippy.js/dist/tippy.css";
 import "tippy.js/animations/scale-extreme.css";
+import Modal from "../Modal/Modal";
+import { BiSad } from "react-icons/bi";
 
 const Server = ({ serverName }) => {
   const navigate = useNavigate();
   const [channels, setChannels] = useState([]);
+  const [showModal, setShowModal] = useState(false);
   const { serverInfo } = useContext(ServerContext);
   const { channelInfo, setChannelInfo } = useContext(ChannelContext);
   // const { serverId } = useParams();
@@ -49,6 +53,9 @@ const Server = ({ serverName }) => {
       console.log(error.message);
     }
   };
+  useEffect(() => {
+    showChannels();
+  }, [showModal]);
 
   const setChannel = (id, sid, cname) => {
     setChannelInfo({
@@ -61,6 +68,10 @@ const Server = ({ serverName }) => {
     content: "Add Channel",
     animation: "scale-extreme",
   });
+  // Modal Functions
+  const closeModal = () => {
+    setShowModal(false);
+  };
   return (
     <div className="channels p-2 border-2 border-transparent rounded-tl-2xl h-full">
       <div className="text-center border-b-2 border-[#26263d] mt-2 flex justify-between p-3">
@@ -72,7 +83,7 @@ const Server = ({ serverName }) => {
           viewBox="0 0 24 24"
           stroke="currentColor"
           strokeWidth="2"
-          onClick={addChannel}
+          onClick={() => setShowModal(true)}
           id="addChannel"
         >
           <path
@@ -82,30 +93,35 @@ const Server = ({ serverName }) => {
           />
         </svg>
       </div>
-      <div className="flex flex-col space-y-2 mt-3 overflow-y-scroll scrollbar-hide">
-        {channels?.map((channel) => {
-          {
-            /* <Channel
-            id={doc.id}
-            channelName={doc.data().channelName}
-            key={doc.id}
-          /> */
-          }
-          {
-            /*  */
-          }
-          return (
-            <div
-              key={channel.id}
-              onClick={() =>
-                setChannel(channel.id, channel.serverId, channel.channelName)
-              }
-            >
-              {channel.channelName}
-            </div>
-          );
-        })}
+      <div className="flex flex-col space-y-2 mt-3 overflow-y-scroll scrollbar-hide w-full">
+        {channels.length === 0 ? (
+          <div className="w-full text-gray-300 text-center flex flex-col justify-center items-center p-3 bg-gray-700 rounded-lg">
+            <div className="my-2">You Don't have any rooms in your house</div>
+            <BiSad size={"2rem"} />
+            <p className="my-2">
+              Click on + Button to add a room in your house...
+            </p>
+          </div>
+        ) : (
+          channels?.map((channel) => {
+            return (
+              <div
+                key={channel.id}
+                onClick={() =>
+                  setChannel(channel.id, channel.serverId, channel.channelName)
+                }
+                className={`flex items-center text-gray-200 cursor-pointer p-2 transition-all ease-in-out rounded-md ${
+                  channelInfo.channelId === channel.id ? "bg-[#2D2D47]" : null
+                }`}
+              >
+                <HiOutlineChatAlt2 size={"1.1rem"} className="ml-1" />
+                <p className="ml-2">{channel.channelName}</p>
+              </div>
+            );
+          })
+        )}
       </div>
+      <Modal showModal={showModal} variant="Room" closeModal={closeModal} />
     </div>
   );
 };
