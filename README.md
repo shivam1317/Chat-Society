@@ -40,7 +40,7 @@ Find the full documentation of application on [wiki](https://github.com/shivam13
 
 # Flow chart of application 📈
 
-![FlowChart (1)](https://user-images.githubusercontent.com/70281451/210523238-4041658f-7f35-420d-ac29-8bf1a4826075.png)
+![FlowChart (1)](https://user-images.githubusercontent.com/70281451/210534603-ea6b53ee-b1a5-4424-bddb-c313f296bb9b.png)
 
 ---
 
