@@ -30,7 +30,7 @@ NOTE: THIS WEB APPLICATION WILL NOT WORK PROPERLY ON MOBILE SO PLEASE USE DESKTO
 
 # Documentation 📝
 
-Find the full documentation of application on our [wiki](https://github.com/KYogesh20/Chat-App/wiki) page.
+Find the full documentation of application on [wiki](https://github.com/shivam1317/Chat-Society/wiki) page.
 
 # Sneak peek 👀
 
