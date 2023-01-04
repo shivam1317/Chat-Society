@@ -1,45 +1,24 @@
-import React, { useRef, useContext } from "react";
+import React, { useRef, useContext, useState } from "react";
 import { ServerContext } from "../Contexts/ServerContext";
-import { AiOutlineCloseCircle, AiFillHome } from "react-icons/ai";
-import { BsFillDoorClosedFill } from "react-icons/bs";
+import { AiOutlineCloseCircle, AiOutlineHome } from "react-icons/ai";
+import { IoIosAddCircleOutline } from "react-icons/io";
+import { ToastContainer, toast } from "react-toastify";
 import axios from "axios";
+import CreateServer from "./CreateServer";
+import AddServer from "./AddServer";
+import "./Modal.css";
 
-const Modal = ({ showModal, closeModal, variant }) => {
+const Modal = ({ showModal, closeModal, variant, servers }) => {
   const { serverInfo } = useContext(ServerContext);
+  const [flag, setFlag] = useState(true);
   const serverId = serverInfo.serverId;
-  const houseRef = useRef(null);
+  // Closing the modal on clicking outside the container
   const handleOnClose = (e) => {
     if (e.target.id === "container") {
       closeModal();
     }
   };
-  const submitData = async () => {
-    try {
-      const housename = houseRef?.current?.value;
-      if (housename && variant === "House") {
-        await axios.post(
-          "http://localhost:5000/api/createserver",
-          JSON.stringify({
-            Name: housename,
-          }),
-          {
-            headers: {
-              "content-type": "application/json",
-            },
-          }
-        );
-        closeModal();
-      } else if (housename && variant === "Room") {
-        await axios.post("http://localhost:5000/channelapi/createchannel", {
-          channelName: housename,
-          serverId,
-        });
-        closeModal();
-      }
-    } catch (error) {
-      console.log(error.message);
-    }
-  };
+
   if (!showModal) {
     return null;
   }
@@ -49,7 +28,7 @@ const Modal = ({ showModal, closeModal, variant }) => {
       id="container"
       onClick={handleOnClose}
     >
-      <div className="w-[35%] p-2 bg-[#202036] rounded-lg">
+      <div className="w-[40%] p-2 bg-[#202036] rounded-lg">
         <div className="flex justify-between items-center w-full px-5 py-2">
           <p className="font-semibold text-2xl text-slate-300">
             Add a {variant}
@@ -60,39 +39,33 @@ const Modal = ({ showModal, closeModal, variant }) => {
             onClick={closeModal}
           />
         </div>
-        <div className="flex flex-col p-3 ml-3">
-          <label
-            htmlFor="name"
-            className="w-fit my-1 text-gray-300 flex items-center"
-          >
-            {variant === "House" ? (
-              <AiFillHome size={"1.2rem"} className="text-indigo-300" />
-            ) : (
-              <BsFillDoorClosedFill
-                size={"1.2rem"}
-                className="text-indigo-300"
-              />
-            )}
-            <p className="mx-2">{variant} Name</p>
-          </label>
-          <input
-            type={"text"}
-            id="name"
-            className="w-full outline-none bg-[#282844] border-none rounded  focus:ring-2 focus:ring-indigo-400 text-base px-3 leading-8 transition-colors duration-200 ease-in-out my-2 text-gray-200"
-            name="housename"
-            ref={houseRef}
-          />
-        </div>
-
-        <div className="flex justify-center items-center w-full">
-          <button
-            className="bg-indigo-500 text-gray-200 px-2 py-1 rounded  hover:bg-indigo-400 w-[40%] my-2"
-            onClick={submitData}
-          >
-            Submit
-          </button>
-        </div>
+        {variant === "House" ? (
+          <div className="mx-auto flex justify-evenly items-center mt-4 mb-3 text-gray-300">
+            <button
+              onClick={() => setFlag(true)}
+              className={`flex px-3 py-1 justify-evenly items-center  tabBtn rounded-lg mx-1 ${
+                flag ? "text-indigo-400" : null
+              }`}
+            >
+              <IoIosAddCircleOutline /> <p className="ml-2">Create A House</p>
+            </button>
+            <button
+              onClick={() => setFlag(false)}
+              className={`flex px-3 py-1 justify-evenly items-center  tabBtn rounded-lg mx-1 ${
+                !flag ? "text-indigo-400" : null
+              }`}
+            >
+              <AiOutlineHome /> <p className="ml-2">Join an existing House</p>
+            </button>
+          </div>
+        ) : null}
+        {flag ? (
+          <CreateServer closeModal={closeModal} variant={variant} />
+        ) : (
+          <AddServer closeModal={closeModal} servers={servers} />
+        )}
       </div>
+      <ToastContainer />
     </div>
   );
 };

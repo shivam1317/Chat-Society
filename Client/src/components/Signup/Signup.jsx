@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import axios from "axios";
 import "../Login/Login.css";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
@@ -11,16 +11,30 @@ import {
 } from "firebase/auth";
 import { auth } from "../../firebase-config";
 import { ToastContainer, toast } from "react-toastify";
+import { UserContext } from "../Contexts/UserContext";
+import { ServerContext } from "../Contexts/ServerContext";
+import { ChannelContext } from "../Contexts/ChannelContext";
 import "react-toastify/dist/ReactToastify.css";
 
 const Signup = () => {
+  const backendURL = import.meta.env.VITE_APP_BACKEND_URL;
   const navigate = useNavigate();
+  const { setServerInfo } = useContext(ServerContext);
+  const { setChannelInfo } = useContext(ChannelContext);
   const [userDetails, setUserDetails] = useState({
     username: "",
     email: "",
     password: "",
     password2: "",
   });
+  const colors = [
+    "bg-[#0096c7]",
+    "bg-[#06d6a0]",
+    "bg-[#5465ff]",
+    "bg-[#fdca40]",
+    "bg-[#fb8b24]",
+    "bg-slate-800",
+  ];
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   onAuthStateChanged(auth, (currUser) => {
@@ -35,15 +49,6 @@ const Signup = () => {
       navigate("/dashboard");
     }
   });
-  // const colors = [
-  //   "bg-[#2d2d47]",
-  //   "bg-[#E94560]",
-  //   "bg-[#1F4068]",
-  //   "bg-[#1597BB]",
-  //   "bg-[#4A47A3]",
-  //   "bg-[#29A19C]",
-  //   "bg-[#EC9B3B]",
-  // ];
   const itemEvent = (event) => {
     const name = event.target.name;
     const value = event.target.value;
@@ -84,9 +89,29 @@ const Signup = () => {
       const user = await createUserWithEmailAndPassword(auth, email, password);
       await updateProfile(auth.currentUser, {
         displayName: username,
-        // bgColor: colors[Math.floor(Math.random() * colors.length)],
+        // photoURL:
+        //   auth.currentUser.photoURL ||
+        //   colors[Math.floor(Math.random() * array.length)],
       });
-      console.log(user);
+      const res = await axios.post(backendURL + "/userapi/adduser", {
+        Email: email,
+        Name: username,
+      });
+      let userInfo = {
+        userName: username,
+        userId: res.data?.id,
+      };
+      // preserve the userInfo state
+      localStorage.setItem("userInfo", JSON.stringify(userInfo));
+      setServerInfo({
+        serverName: null,
+        serverId: null,
+        serverCode: null,
+      });
+      setChannelInfo({
+        channelId: null,
+        channelName: null,
+      });
       toast.update(id, {
         render: "Login successfull",
         type: "success",
@@ -122,10 +147,25 @@ const Signup = () => {
     try {
       const provider = new GoogleAuthProvider();
       const userDetail = await signInWithPopup(auth, provider);
-      // await updateProfile(auth.currentUser, {
-      //   bgColor: colors[Math.floor(Math.random() * colors.length)],
-      // });
-      console.log(userDetail.user);
+      const res = await axios.post(backendURL + "/userapi/adduser", {
+        Email: userDetail.user.email,
+        Name: userDetail.user.displayName,
+      });
+      let userInfo = {
+        userName: res.data?.Name,
+        userId: res.data?.id,
+      };
+      // preserve the userInfo state
+      localStorage.setItem("userInfo", JSON.stringify(userInfo));
+      setServerInfo({
+        serverName: null,
+        serverId: null,
+        serverCode: null,
+      });
+      setChannelInfo({
+        channelId: null,
+        channelName: null,
+      });
       toast.update(id, {
         render: "Login successfull",
         type: "success",

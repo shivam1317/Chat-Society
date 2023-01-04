@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Mulish&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans&display=swap");
 
 @tailwind base;
 @tailwind components;
@@ -8,12 +8,12 @@
   padding: 0px;
   margin: 0px;
   box-sizing: border-box;
-  font-family: "Mulish", sans-serif;
+  font-family: "DM Sans", sans-serif;
 }
 body {
   /* overflow: hidden; */
   background-color: #161625;
   color: white;
-  height: 100%;
-  overflow: hidden;
+  height: 100vh;
+  overflow: scroll;
 }

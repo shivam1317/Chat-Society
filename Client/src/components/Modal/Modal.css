@@ -1,0 +1,12 @@
+.tabBtn {
+  backdrop-filter: blur(20px) saturate(175%);
+  -webkit-backdrop-filter: blur(20px) saturate(175%);
+  background-color: rgba(38, 41, 69, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.125);
+}
+.codeP {
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  background-color: rgba(22, 36, 56, 0.71);
+  border: 1px solid rgba(255, 255, 255, 0.125);
+}

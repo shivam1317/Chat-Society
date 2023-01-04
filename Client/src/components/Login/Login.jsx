@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import "./Login.css";
 import { NavLink, useNavigate } from "react-router-dom";
 import {
@@ -11,15 +11,29 @@ import {
 import { auth } from "../../firebase-config.js";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { ServerContext } from "../Contexts/ServerContext";
+import { ChannelContext } from "../Contexts/ChannelContext";
+import axios from "axios";
 // import Home from "../Home/Home";
 
 const Login = () => {
   const navigate = useNavigate();
+  const backendURL = import.meta.env.VITE_APP_BACKEND_URL;
+  const { setServerInfo } = useContext(ServerContext);
+  const { setChannelInfo } = useContext(ChannelContext);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userDetails, setUserDetails] = useState({
     email: "",
     password: "",
   });
+  const colors = [
+    "bg-[#0096c7]",
+    "bg-[#06d6a0]",
+    "bg-[#5465ff]",
+    "bg-[#fdca40]",
+    "bg-[#fb8b24]",
+    "bg-slate-800",
+  ];
   onAuthStateChanged(auth, (currUser) => {
     if (currUser) {
       setIsAuthenticated(true);
@@ -45,10 +59,26 @@ const Login = () => {
   const submitForm = async (e) => {
     e.preventDefault();
     const { email, password } = userDetails;
-    console.log(email, password);
+    // console.log(email, password);
     const id = toast.loading("Logging in...");
     try {
       const user = await signInWithEmailAndPassword(auth, email, password);
+      // Have to store these colors in db
+      // await updateProfile(auth.currentUser, {
+      //   photoURL:
+      //     auth.currentUser.photoURL ||
+      //     colors[Math.floor(Math.random() * array.length)],
+      // });
+      const res = await axios.post(backendURL + "/userapi/adduser", {
+        Email: user.user.email,
+        Name: user.user.displayName,
+      });
+      let userInfo = {
+        userName: res.data?.Name,
+        userId: res.data?.id,
+      };
+      // preserve the userInfo state
+      localStorage.setItem("userInfo", JSON.stringify(userInfo));
       toast.update(id, {
         render: "Login successful",
         type: "success",
@@ -79,8 +109,28 @@ const Login = () => {
     try {
       const provider = new GoogleAuthProvider();
       const userDetail = await signInWithPopup(auth, provider);
+      const res = await axios.post(backendURL + "/userapi/adduser", {
+        Email: userDetail.user.email,
+        Name: userDetail.user.displayName,
+      });
+      let userInfo = {
+        userName: res.data?.Name,
+        userId: res.data?.id,
+      };
+      // preserve the userInfo state
+      localStorage.setItem("userInfo", JSON.stringify(userInfo));
+      setServerInfo({
+        serverName: null,
+        serverId: null,
+        serverCode: null,
+      });
+      setChannelInfo({
+        channelId: null,
+        channelName: null,
+      });
       // await updateProfile(auth.currentUser, {
-      //   bgColor: auth.currentUser.bgColor || "bg-[#2d2d47]",
+      //   photoURL:
+      //     "https://source.boringavatars.com/beam/60?colors=264653,2a9d8f,e9c46a,f4a261,e76f51",
       // });
       // console.log(userDetail.user);
       toast.update(id, {

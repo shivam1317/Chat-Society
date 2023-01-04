@@ -21,19 +21,15 @@
 .container {
   background-color: #161625;
   display: grid;
-  grid-template-columns: 0.7fr 2fr 9fr;
-  min-height: 100vh;
-}
-.server {
-  /* background-color: #30303d; */
+  grid-template-columns: 0.7fr 2fr 10fr;
+  width: 100vw;
 }
 .channels {
   background-color: #1e1e30;
 }
 .chat-body {
-  /* background-color: #27274e; */
   display: grid;
-  grid-template-rows: 1fr 7fr 1fr;
+  grid-template-rows: 1fr auto 1fr;
 }
 .chat-body-header {
   background-color: #1e1e30;
@@ -41,9 +37,12 @@
   grid-template-columns: 9fr 1fr;
 }
 .chat-footer {
-  /* background-color: rgb(47, 47, 56); */
   border-top: 2px solid #26263d;
 }
-.pfpDiv {
-  background-color: #2d2d47;
+
+.codeDiv {
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  background-color: rgba(35, 43, 69, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.125);
 }

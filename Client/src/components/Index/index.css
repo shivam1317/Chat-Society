@@ -1,0 +1,19 @@
+.getStartedBtn {
+  background-image: linear-gradient(
+    to right,
+    #2e3f5d 0%,
+    #64a9c8 51%,
+    #2e3f5d 100%
+  );
+  background-size: 200% auto;
+  transition: 0.5s ease-in-out;
+}
+.getStartedBtn:hover {
+  background-position: right center;
+}
+.featureCard {
+  backdrop-filter: blur(20px) saturate(105%);
+  -webkit-backdrop-filter: blur(20px) saturate(105%);
+  background-color: rgba(38, 57, 87, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.125);
+}
