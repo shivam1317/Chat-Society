@@ -24,14 +24,29 @@ model Message{
 model Channel{
   id String @id @default(auto()) @map("_id") @db.ObjectId
   serverId  String @db.ObjectId
+  ownerId String @db.ObjectId
   channelName String
   serverName Server @relation(fields: [serverId], references: [id])
   messages Message[]
+  Owner User @relation(fields: [ownerId], references: [id])
 }
 
 // Model For Server
 model Server{
   id String  @id @default(auto()) @map("_id") @db.ObjectId
   Name String
+  channels Channel[]
+  Code String @unique
+  ownerId String @db.ObjectId
+  Owner User @relation(fields: [ownerId], references: [id])
+}
+
+// Model for users
+model User{
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+  Email String
+  Name String
+  joinedServers Json[]
+  servers Server[]
   channels Channel[]
 }

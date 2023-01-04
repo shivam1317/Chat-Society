@@ -23,10 +23,11 @@ const { sendMsg } = require("./controllers/MessageController.js");
 const http = require("http");
 const server = http.createServer(app);
 const { Server } = require("socket.io");
+const frontendURL = process.env.FRONTEND_URL;
 
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:3000",
+    origin: frontendURL,
     methods: ["GET", "POST"],
   },
 });
@@ -37,7 +38,7 @@ io.on("connection", (socket) => {
     await sendMsg(data);
     // module.exports = data;
     console.log("message received!!!");
-    io.local.emit("received_message", {
+    socket.broadcast.emit("received_message", {
       data: "message received!!!",
       channelId: data.channelId,
     });
@@ -51,11 +52,13 @@ io.on("connection", (socket) => {
 var serverRouter = require("./routes/serverRoute");
 let channelRouter = require("./routes/channelRoute");
 let messageRouter = require("./routes/messageRoute");
+let userRouter = require("./routes/userRoute");
 const prisma = require("./prisma/index.js");
 
 app.use("/api", serverRouter);
 app.use("/channelapi", channelRouter);
 app.use("/msgapi", messageRouter);
+app.use("/userapi", userRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
@@ -77,9 +80,11 @@ app.use(function (err, req, res, next) {
 //   console.log(`server started on port 5000..`);
 // });
 // const deletekarde = async () => {
-//   await prisma.message.deleteMany({});
+//   // await prisma.message.deleteMany({});
+//   // await prisma.server.deleteMany({});
+//   // await prisma.channel.deleteMany({});
 //   console.log("Deleted!");
 // };
 // deletekarde();
-server.listen(5000);
+server.listen(process.env.PORT || 5000);
 module.exports = app;
