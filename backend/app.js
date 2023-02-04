@@ -37,15 +37,11 @@ io.on("connection", (socket) => {
   socket.on("send_message", async (data) => {
     await sendMsg(data);
     // module.exports = data;
-    console.log("message received!!!");
     socket.broadcast.emit("received_message", {
       data: "message received!!!",
       channelId: data.channelId,
     });
     // socket.emit();
-    // console.log(
-    //   `author : ${data.author} | message : ${data.message} | channel Name: ${data.channelName} | time: ${data.timestamp}`
-    // );
   });
 });
 
@@ -53,7 +49,6 @@ var serverRouter = require("./routes/serverRoute");
 let channelRouter = require("./routes/channelRoute");
 let messageRouter = require("./routes/messageRoute");
 let userRouter = require("./routes/userRoute");
-const prisma = require("./prisma/index.js");
 
 app.use("/api", serverRouter);
 app.use("/channelapi", channelRouter);
@@ -75,16 +70,12 @@ app.use(function (err, req, res, next) {
   res.status(err.status || 500);
   res.render("error");
 });
-
-// app.listen(5000, () => {
-//   console.log(`server started on port 5000..`);
-// });
-// const deletekarde = async () => {
+// const deleteData = async () => {
 //   // await prisma.message.deleteMany({});
 //   // await prisma.server.deleteMany({});
 //   // await prisma.channel.deleteMany({});
-//   console.log("Deleted!");
+//   // console.log("Deleted!");
 // };
-// deletekarde();
+// deleteData();
 server.listen(process.env.PORT || 5000);
 module.exports = app;
