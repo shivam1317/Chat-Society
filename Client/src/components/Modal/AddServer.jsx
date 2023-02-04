@@ -28,7 +28,6 @@ const AddServer = ({ closeModal, servers }) => {
             userId: userInfo.userId,
           });
           closeModal();
-          console.log(response);
           toast.update(id, {
             render: "You successfully joined the house!",
             type: "info",

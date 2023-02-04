@@ -20,7 +20,6 @@ const CreateServer = ({ variant, closeModal }) => {
           Name: housename,
           ownerId: userInfo.userId,
         });
-        console.log(res);
         closeModal();
         toast.update(id, {
           render: "House created successfully!",
