@@ -15,10 +15,9 @@ import Modal from "../Modal/Modal";
 import { BiSad } from "react-icons/bi";
 import "tippy.js/dist/tippy.css";
 import "tippy.js/animations/scale-extreme.css";
-import "./Server.css";
 import ChannelSkeleton from "../Skeletons/ChannelSkeleton";
 
-const Server = ({ serverName, setMsgflag }) => {
+const Server = ({ serverName, setMsgflag, setMsgLoading }) => {
   const navigate = useNavigate();
   const [channels, setChannels] = useState([]);
   const [showModal, setShowModal] = useState(false);
@@ -26,8 +25,8 @@ const Server = ({ serverName, setMsgflag }) => {
   const { serverInfo } = useContext(ServerContext);
   const { channelInfo, setChannelInfo } = useContext(ChannelContext);
   const backendURL = import.meta.env.VITE_APP_BACKEND_URL;
-  const serverId = serverInfo.serverId;
-  const { channelId } = useParams();
+  let serverId = serverInfo.serverId;
+  let { channelId } = useParams();
   useEffect(() => {
     setIsLoading(true);
     showChannels();
@@ -42,20 +41,6 @@ const Server = ({ serverName, setMsgflag }) => {
       channelId,
     });
   }, []);
-  const addChannel = async () => {
-    try {
-      const channelName = prompt("Enter channel name");
-      if (channelName) {
-        const res = await axios.post(`${backendURL}/channelapi/createchannel`, {
-          channelName,
-          serverId,
-        });
-      }
-      showChannels();
-    } catch (error) {
-      console.log(error.message);
-    }
-  };
   const showChannels = async () => {
     try {
       if (serverId) {
@@ -76,6 +61,7 @@ const Server = ({ serverName, setMsgflag }) => {
       channelName: cname,
     });
     setMsgflag(true);
+    setMsgLoading(true);
     navigate(`/dashboard/${sid}/${id}`);
   };
   tippy("#addChannel", {
@@ -132,7 +118,7 @@ const Server = ({ serverName, setMsgflag }) => {
                 }
                 className={`flex items-center  cursor-pointer p-2 transition-all ease-in-out rounded-md ${
                   channelInfo.channelId === channel.id
-                    ? "activeChannel text-gray-200 font-semibold"
+                    ? " bg-slate-700/80"
                     : "text-gray-300"
                 }`}
               >
