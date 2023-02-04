@@ -4,6 +4,7 @@ import { BsLightningFill, BsClockHistory } from "react-icons/bs";
 import { CgPerformance } from "react-icons/cg";
 import { HiOutlineChatBubbleLeft } from "react-icons/hi2";
 import { AiOutlineHome } from "react-icons/ai";
+import { BiImage, BiUserPlus } from "react-icons/bi";
 import "./index.css";
 
 const Index = () => {
@@ -22,7 +23,7 @@ const Index = () => {
             A place for you to chat,connect and interact...
           </p>
           <NavLink to="/login">
-            <button className="getStartedBtn p-3 text-gray-200 rounded-xl my-2">
+            <button className="getStartedBtn p-3 text-gray-100 rounded-xl my-2">
               Get Started
             </button>
           </NavLink>
@@ -31,24 +32,34 @@ const Index = () => {
       {/* Features section */}
       <div className="font-bold text-4xl my-3 flex items-center">
         {" "}
-        <BsLightningFill size="30" color="#FBBF24" /> Features
+        <BsLightningFill size="30" color="#FBBF24" />{" "}
+        <span className="mx-3">Features</span>
+        <BsLightningFill size="30" color="#FBBF24" />
       </div>
       <div className="w-[90%] flex flex-row justify-between py-3 text-xl items-center">
         {/* Feature Div */}
         <div className="w-2/5">
-          <div className="flex items-center p-2 text-slate-300 rounded-lg my-5 featureCard cursor-pointer hover:text-blue-300 transition-all duration-150 ease-in-out">
+          <div className="flex items-center p-2 text-slate-300 rounded-lg my-4 featureCard cursor-pointer hover:text-blue-300 transition-all duration-150 ease-in-out">
             <CgPerformance />
             <p className="ml-4">Increased Performance</p>
           </div>
-          <div className="flex items-center p-2 text-slate-300 rounded-lg my-5 featureCard cursor-pointer hover:text-blue-300 transition-all duration-150 ease-in-out">
+          <div className="flex items-center p-2 text-slate-300 rounded-lg my-4 featureCard cursor-pointer hover:text-blue-300 transition-all duration-150 ease-in-out">
             <HiOutlineChatBubbleLeft />
             <p className="ml-4">Realtime Chat</p>
           </div>
-          <div className="flex items-center p-2 text-slate-300 rounded-lg my-5 featureCard cursor-pointer hover:text-blue-300 transition-all duration-150 ease-in-out">
+          <div className="flex items-center p-2 text-slate-300 rounded-lg my-4 featureCard cursor-pointer hover:text-blue-300 transition-all duration-150 ease-in-out">
             <AiOutlineHome />
             <p className="ml-4">Organize Chatrooms in Houses</p>
           </div>
-          <div className="flex items-center p-2 text-slate-300 rounded-lg my-5 featureCard cursor-pointer hover:text-blue-300 transition-all duration-150 ease-in-out">
+          <div className="flex items-center p-2 text-slate-300 rounded-lg my-4 featureCard cursor-pointer hover:text-blue-300 transition-all duration-150 ease-in-out">
+            <BiUserPlus />
+            <p className="ml-4">Invite your friends to your house</p>
+          </div>
+          <div className="flex items-center p-2 text-slate-300 rounded-lg my-4 featureCard cursor-pointer hover:text-blue-300 transition-all duration-150 ease-in-out">
+            <BiImage />
+            <p className="ml-4">Images & GIF Support</p>
+          </div>
+          <div className="flex items-center p-2 text-slate-300 rounded-lg my-4 featureCard cursor-pointer hover:text-blue-300 transition-all duration-150 ease-in-out">
             <BsClockHistory />
             <p className="ml-4">More Features Coming Soon...</p>
           </div>

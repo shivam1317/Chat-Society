@@ -1,9 +1,9 @@
 .getStartedBtn {
   background-image: linear-gradient(
     to right,
-    #2e3f5d 0%,
+    #364b6f 0%,
     #64a9c8 51%,
-    #2e3f5d 100%
+    #364b6f 100%
   );
   background-size: 200% auto;
   transition: 0.5s ease-in-out;
