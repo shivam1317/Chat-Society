@@ -40,3 +40,17 @@ exports.getJoinedServers = async (req, res, next) => {
     res.json(error.messsage);
   }
 };
+
+exports.getUserInfo = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const user = await prisma.user.findFirst({
+      where: {
+        id,
+      },
+    });
+    res.json(user);
+  } catch (error) {
+    res.json(error.messsage);
+  }
+};
