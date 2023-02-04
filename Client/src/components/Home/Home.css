@@ -34,7 +34,7 @@
 .chat-body-header {
   background-color: #1e1e30;
   display: grid;
-  grid-template-columns: 9fr 1fr;
+  grid-template-columns: 8fr 2fr;
 }
 .chat-footer {
   border-top: 2px solid #26263d;

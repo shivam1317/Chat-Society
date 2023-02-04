@@ -6,7 +6,7 @@ import { AiOutlineHome, AiFillHome } from "react-icons/ai";
 import { signOut, onAuthStateChanged, updateProfile } from "firebase/auth";
 import { MdOutlinePersonAddAlt } from "react-icons/md";
 import { auth } from "../../firebase-config";
-import { useNavigate } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { ToastContainer, toast } from "react-toastify";
 import { useParams } from "react-router-dom";
 import "react-toastify/dist/ReactToastify.css";
@@ -22,28 +22,48 @@ import "tippy.js/dist/tippy.css";
 import "tippy.js/animations/shift-away-subtle.css";
 import { socket } from "../../IO";
 import InfiniteScroll from "react-infinite-scroll-component";
+
+// === modal imports ===
 import Modal from "../Modal/Modal";
 import HomeSkeleton from "../Skeletons/HomeSkeleton";
 import InviteModal from "../Modal/InviteModal";
+import ImagePreview from "../Modal/ImagePreview";
+
+// =====================
+import MessageSkeleton from "../Skeletons/MessageSkeleton";
+import { storage } from "../../firebase-config";
+import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
+import { v4 } from "uuid"; // to make the image filename unique
+import Resizer from "react-image-file-resizer";
 
 const Home = () => {
-  // console.log(socket);
+  // for image uploading
+  // const [image, setImage] = useState("");
+  const [previewImage, setPreviewImage] = useState(null);
+  const usrimg = useRef(null);
+
+  // set image preview modal states
+  const [showImagePreviewModal, setShowImagePreviewModal] = useState(false);
+  const [userInfo, setUserInfo] = useState({
+    userName: "",
+    userId: "",
+  });
   const [servers, setServers] = useState([]);
   const [displayMessages, setDisplayMessages] = useState([]);
   const [sliceCount, setSliceCount] = useState(-15);
   const [hasMore, setHasMore] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
+  const [msgLoading, setMsgLoading] = useState(false);
   const [displayName, setDisplayName] = useState("");
   const [msgflag, setMsgflag] = useState(false);
   // const [photoURL, setPhotoURL] = useState("bg-[#2d2d47]");
   const [showModal, setShowModal] = useState(false);
   const [showInviteModal, setShowInviteModal] = useState(false);
-  const { serverInfo, setServerInfo } = useContext(ServerContext);
-  const { channelInfo, setChannelInfo } = useContext(ChannelContext);
+  let { serverInfo, setServerInfo } = useContext(ServerContext);
+  let { channelInfo, setChannelInfo } = useContext(ChannelContext);
   const [isAuthenticated, setIsAuthenticated] = useState(true);
   const [currentMessage, setCurrentMessage] = useState("");
-  const { channelId, serverId } = useParams();
-  const [channelIdState, setChannelIdState] = useState(channelId);
+  let { channelId, serverId } = useParams();
   const chatRef = useRef(null);
   const backendURL = import.meta.env.VITE_APP_BACKEND_URL;
   const navigate = useNavigate();
@@ -56,20 +76,12 @@ const Home = () => {
       setIsAuthenticated(false);
     }
   });
-  const fetchProjects = async ({ pageParam = 5 }) => {
-    console.log(`pageParam is: ${pageParam}`);
-    console.log(`channelId is: ${channelId}`);
-    const res = await fetch(
-      `${backendURL}/msgapi/msgs/${channelId}?take=${pageParam}`
-    );
-    // console.log(`response ka pradarshan: `);
-    // console.log(res);
-    // return res.json().msgs;
-    const msgs = await res.json();
-    console.log("messages from fetchProjects: ");
-    console.log(msgs);
-    return msgs;
-  };
+
+  useEffect(() => {
+    const u = JSON.parse(localStorage.getItem("userInfo"));
+    setUserInfo(u);
+  }, []);
+
   const fetchAllMsgs = async () => {
     setSliceCount(-15);
     setHasMore(true);
@@ -77,9 +89,9 @@ const Home = () => {
     const data = await res.json();
     localStorage.setItem("messages", JSON.stringify(data?.msgs));
     setDisplayMessages(data?.msgs.slice(-15));
+    setMsgLoading(false);
   };
   const fetchNextMessages = () => {
-    console.log("fetchNextMessages got triggered with slice value", sliceCount);
     const allMsg = JSON.parse(localStorage.getItem("messages"));
     let newMsgs = allMsg?.slice(sliceCount - 15, sliceCount);
     if (newMsgs.length === 0) {
@@ -89,54 +101,85 @@ const Home = () => {
       setDisplayMessages(temp);
       setSliceCount(sliceCount - 15);
       let latestMsg = document.getElementById(12);
-      // console.log("Latest msg is");
-      // console.log(latestMsg);
       latestMsg.scrollIntoView({
         block: "start",
       });
     }
   };
   const fetchOneMessage = async (newChannelId) => {
-    const res = await fetch(`${backendURL}/msgapi/msgs/${newChannelId}?take=1`);
-    const data = await res.json();
-    const allMsg = JSON.parse(localStorage.getItem("messages"));
-    let newList = allMsg?.concat(data?.msgs);
-    setDisplayMessages(newList?.slice(sliceCount));
-    localStorage.setItem("messages", JSON.stringify(newList));
+    const currChan = JSON.parse(localStorage.getItem("currChan"));
+    if (currChan === newChannelId) {
+      const res = await fetch(
+        `${backendURL}/msgapi/msgs/${newChannelId}?take=1`
+      );
+      const data = await res.json();
+      const allMsg = JSON.parse(localStorage.getItem("messages"));
+      let newList = allMsg?.concat(data?.msgs);
+      setDisplayMessages(newList?.slice(sliceCount));
+      localStorage.setItem("messages", JSON.stringify(newList));
+    }
   };
 
   useEffect(() => {
     if (!isAuthenticated) {
       navigate("/login");
     }
+  }, [isAuthenticated]);
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      navigate("/login");
+    }
     setTimeout(() => {
-      showServers();
       setServerInfo({
         ...serverInfo,
         serverId,
       });
+      showServers();
     }, 1000);
   }, []);
 
   useEffect(() => {
     localStorage.removeItem("messages");
-    // console.log("Current correct channelId", channelId);
+    localStorage.setItem("currChan", JSON.stringify(channelId));
     fetchAllMsgs();
   }, [channelId]);
 
   useEffect(() => {
     socket.on("received_message", (data) => {
-      // console.log("Message received in channelId", data.channelId);
       fetchOneMessage(data.channelId);
     });
   }, []);
-  const sendMessage = async () => {
+
+  //=== image compression ===
+  // resize the image and return the base64uri
+  const resizeFile = (file) =>
+    new Promise((resolve) => {
+      Resizer.imageFileResizer(
+        file,
+        300,
+        400,
+        "WEBP",
+        100,
+        0,
+        (uri) => {
+          resolve(uri);
+        },
+        "file"
+      );
+    });
+
+  // === image compression ===
+
+  const sendMessage = () => {
     if (currentMessage !== "") {
       const messageData = {
         message: currentMessage,
         author: displayName,
+        authorId: userInfo.userId,
         channelId: channelId,
         timestamp: new Date().toISOString(),
+        type: "text",
       };
       socket.emit("send_message", messageData);
       const allMsg = JSON.parse(localStorage.getItem("messages"));
@@ -148,73 +191,14 @@ const Home = () => {
     }
   };
 
-  const logoutUser = () => {
-    const id = toast.loading("Logging out...");
-    signOut(auth)
-      .then(() => {
-        console.log("signed out successfully...");
-        console.log(isAuthenticated);
-        toast.update(id, {
-          render: "Logout successful..",
-          type: "success",
-          isLoading: false,
-          autoClose: 3000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          theme: "dark",
-        });
-        setIsAuthenticated(false);
-        localStorage.clear();
-        navigate("/login");
-      })
-      .catch((e) => {
-        toast.error("Some error occured", {
-          position: "top-right",
-          autoClose: 3000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          theme: "dark",
-        });
-        console.log(e.message);
-      });
-  };
-
   const showServers = async () => {
     try {
       let userInfo = JSON.parse(localStorage.getItem("userInfo"));
-      console.log(userInfo);
-      // if (userInfo) {
       const res = await axios.get(
         `${backendURL}/userapi/getserver/${userInfo?.userId}`
       );
       setServers(res.data?.joinedServers);
       setIsLoading(false);
-    } catch (error) {
-      console.log(error.message);
-    }
-  };
-
-  const addServer = async () => {
-    try {
-      const serverName = prompt("Add the server name");
-      if (serverName !== "") {
-        const res = await axios.post(
-          `${backendURL}/api/createserver`,
-          JSON.stringify({
-            Name: serverName,
-          }),
-          {
-            headers: {
-              "content-type": "application/json",
-            },
-          }
-        );
-        showServers();
-      }
-      // const response = await res.json();
-      // console.log(response);
     } catch (error) {
       console.log(error.message);
     }
@@ -260,10 +244,89 @@ const Home = () => {
     setShowInviteModal(false);
   };
 
+  const closeImagePreviewModal = () => {
+    setShowImagePreviewModal(false);
+    setPreviewImage(null);
+    usrimg.current.value = null;
+  };
+
   useEffect(() => {
     showServers();
   }, [showModal]);
 
+  const OnProfileBtnClick = () => {
+    // const uid = JSON.parse(localStorage.getItem("userInfo"));
+    navigate(`/profile/${userInfo.userId}`);
+  };
+
+  const onMsgClick = (authorId) => {
+    navigate(`/profile/${authorId}`);
+  };
+
+  const updateImage = (image) => {
+    console.log(image);
+    if (image !== "") {
+      const imageRef = ref(storage, `/Images/${image.name + v4()}`);
+      const uploadTask = uploadBytesResumable(imageRef, image);
+      const id = toast.loading("Uploading image..");
+      // Listen for state changes, errors, and completion of the upload.
+      uploadTask.on(
+        "state_changed",
+        (snapshot) => {
+          // Get task progress, including the number of bytes uploaded and the total number of bytes to be uploaded
+          // const progress = parseInt(
+          //   (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+          // );
+          switch (snapshot.state) {
+            case "paused":
+              console.log("Upload is paused");
+              break;
+            case "running":
+              break;
+          }
+        },
+        (error) => {
+          switch (error.code) {
+            case "storage/unauthorized":
+              // User doesn't have permission to access the object
+              break;
+            case "storage/canceled":
+              // User canceled the upload
+              break;
+            case "storage/unknown":
+              // Unknown error occurred, inspect error.serverResponse
+              break;
+          }
+        },
+        () => {
+          // Upload completed successfully, now we can get the download URL
+          getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+            const messageData = {
+              message: downloadURL,
+              author: displayName,
+              authorId: userInfo.userId,
+              channelId: channelId,
+              timestamp: new Date().toISOString(),
+              type: "image",
+            };
+            socket.emit("send_message", messageData);
+            const allMsg = JSON.parse(localStorage.getItem("messages"));
+            let newList = allMsg?.concat(messageData);
+            setDisplayMessages(newList?.slice(sliceCount));
+            toast.update(id, {
+              render: "upload successful",
+              type: "success",
+              isLoading: false,
+              autoClose: 2000,
+              closeOnClick: true,
+            });
+            localStorage.setItem("messages", JSON.stringify(newList));
+            scrollToBottom();
+          });
+        }
+      );
+    }
+  };
   return (
     <>
       <div className="container h-screen">
@@ -322,8 +385,7 @@ const Home = () => {
           <div className="mt-auto flex justify-center flex-col items-center">
             {/* <p className="text-xs">{displayName}</p> */}
             <button
-              onClick={logoutUser}
-              data-background={"green"}
+              onClick={OnProfileBtnClick}
               className={`transition-all rounded-full p-2 bg-slate-800`}
               id="profile"
             >
@@ -333,25 +395,20 @@ const Home = () => {
           </div>
         </div>
         <div>
-          <Server serverName={serverInfo.serverName} setMsgflag={setMsgflag} />
+          <Server
+            serverName={serverInfo.serverName}
+            setMsgflag={setMsgflag}
+            setMsgLoading={setMsgLoading}
+          />
         </div>
         <div className="chat-body w-full ">
-          <div className="chat-body-header justify-between items-center h-fit pt-3 ">
-            <div className="p-2 flex items-center">
+          <div className="chat-body-header justify-between items-center h-fit pt-3">
+            <div className="p-2 flex items-center mb-2">
               <p className="text-lg my-auto text-slate-200 ml-5">
                 {channelInfo.channelName
                   ? "#  " + channelInfo.channelName
                   : "Select a chatroom"}
               </p>
-              {/* <p
-                className="ml-5 codeDiv rounded-lg p-2 text-slate-200 hover:text-blue-400 cursor-pointer"
-                onClick={() => {
-                  showCopyToast();
-                  navigator.clipboard.writeText(serverInfo.serverCode);
-                }}
-              >
-                Server Code: {serverInfo.serverCode}
-              </p> */}
               <button
                 className="flex text-slate-200 hover:text-blue-400 transition-all duration-200 ease-in-out codeDiv rounded-lg items-center px-3 py-1 ml-3"
                 onClick={() => setShowInviteModal(true)}
@@ -359,22 +416,25 @@ const Home = () => {
                 <MdOutlinePersonAddAlt /> <p className="ml-3"> Invite</p>
               </button>
             </div>
-            <div className="p-2 w-15">
-              <input
-                name="search"
-                placeholder="    searching..."
-                className="w-[30vh] rounded-lg bg-[#101018] p-2 outline-none"
-              />
+            <div className="p-2 mb-1">
+              <a
+                href="https://github.com/shivam1317/Chat-Society/wiki"
+                className="codeDiv px-3 py-2 text-slate-300 hover:text-blue-400 transition-all duration-200 ease-in-out rounded-xl"
+                target={"_blank"}
+              >
+                Need Help?
+              </a>
             </div>
           </div>
-          {/* <p className="bg-[#2d2d47] border-2 border-transparent rounded-xl inline px-2">
-                Join a channel to show chats
-              </p> */}
           <div
             className="h-[70vh] mx-3 overflow-y-scroll flex flex-col-reverse"
             id="scrollableDiv"
           >
-            {msgflag ? (
+            {msgLoading ? (
+              [1, 2, 3, 4, 5].map(() => {
+                return <MessageSkeleton />;
+              })
+            ) : msgflag ? (
               <InfiniteScroll
                 dataLength={displayMessages?.length}
                 next={fetchNextMessages}
@@ -391,7 +451,8 @@ const Home = () => {
                     <Fragment key={i}>
                       <div className="flex">
                         <div
-                          className={`mt-2 bg-[#2d2d47] p-2 rounded-full h-fit`}
+                          className={`mt-2 bg-[#2d2d47] p-2 rounded-full h-fit cursor-pointer`}
+                          onClick={() => onMsgClick(messageData.authorId)}
                         >
                           <FiUser size={"1.2rem"} />
                         </div>
@@ -426,7 +487,18 @@ const Home = () => {
                           ).toLocaleTimeString()}`}
                             </div>
                           </div>
-                          <div className="message">{messageData?.message}</div>
+                          {messageData.type === "text" ? (
+                            <div className="message">
+                              {messageData?.message}
+                            </div>
+                          ) : (
+                            <img
+                              width={350}
+                              height={200}
+                              src={messageData?.message}
+                              className="p-1"
+                            />
+                          )}
                         </div>
                       </div>
                     </Fragment>
@@ -442,34 +514,81 @@ const Home = () => {
               </div>
             )}
           </div>
-          <div className="chat-footer p-4 text-lg flex-grow ">
+          <div className="chat-footer text-lg flex-grow flex-row">
             <form
               onSubmit={(e) => {
                 e.preventDefault();
                 sendMessage();
               }}
             >
-              <input
-                type="text"
-                value={currentMessage}
-                // placeholder="Hey..."
-                onChange={(event) => {
-                  setCurrentMessage(event.target.value);
-                }}
-                // ref={inputReference}
-                // onKeyPress={(event) => {
-                //   event.key === "Enter" && sendMessage();
-                // }}
-                name="send-message"
-                disabled={!msgflag}
-                placeholder={
-                  channelInfo.channelName
-                    ? "Message #" + channelInfo.channelName
-                    : "Select a channel"
-                }
-                className="send-message w-full rounded-lg py-2 px-3 bg-[#2d2d47] outline-none"
-              />
-              <input type="submit" hidden={true} />
+              <div className="flex flex-row">
+                <div className="mx-2">
+                  <input
+                    id="actual-btn"
+                    type="file"
+                    accept="image/png, image/gif, image/jpeg, image/webp"
+                    ref={usrimg}
+                    onChange={async (e) => {
+                      const file = e.target.files[0];
+                      const fileSize = parseFloat(
+                        file.size / (1024 * 1024)
+                      ).toFixed(0);
+                      if (fileSize < 4 || file.type === "image/gif") {
+                        setPreviewImage(file);
+                        setShowImagePreviewModal(true);
+                      } else {
+                        const resizedImage = await resizeFile(file);
+                        setPreviewImage(resizedImage);
+                        setShowImagePreviewModal(true);
+                      }
+                    }}
+                    disabled={!msgflag}
+                    hidden
+                  />
+                  {/* <button className="" onClick={sendMessage}>
+                  +
+                </button> */}
+                  <label for="actual-btn">
+                    <div className="my-5 p-1 bg-[#2d2d47]  rounded-full hover:text-blue-500 transition-all cursor-pointer duration-300 ease-in-out">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-5 w-5"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M12 4v16m8-8H4"
+                        />
+                      </svg>
+                    </div>
+                  </label>
+                </div>
+                <input
+                  type="text"
+                  value={currentMessage}
+                  // placeholder="Hey..."
+                  onChange={(event) => {
+                    setCurrentMessage(event.target.value);
+                  }}
+                  // ref={inputReference}
+                  // onKeyPress={(event) => {
+                  //   event.key === "Enter" && sendMessage();
+                  // }}
+                  name="send-message"
+                  disabled={!msgflag}
+                  placeholder={
+                    channelInfo.channelName
+                      ? "Message #" + channelInfo.channelName
+                      : "Select a channel"
+                  }
+                  className="send-message m-auto mx-2 w-full h-1/2 rounded-lg py-2 px-3 bg-[#2d2d47] outline-none"
+                />
+                <input type="submit" hidden={true} />
+              </div>
             </form>
           </div>
         </div>
@@ -483,6 +602,12 @@ const Home = () => {
           showModal={showInviteModal}
           closeModal={closeInviteModal}
           Code={serverInfo.serverCode}
+        />
+        <ImagePreview
+          showModal={showImagePreviewModal}
+          closeModal={closeImagePreviewModal}
+          previewImage={previewImage}
+          setImage={updateImage}
         />
       </div>
     </>
