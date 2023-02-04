@@ -44,6 +44,7 @@ function App() {
                 path="/dashboard/:serverId/:channelId"
                 element={<Home />}
               />
+              <Route path="/profile/:id" element={<Profile />} />
             </Routes>
           </UserContext.Provider>
         </ChannelContext.Provider>
