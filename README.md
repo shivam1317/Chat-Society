@@ -35,8 +35,8 @@ Find the full documentation of application on [wiki](https://github.com/shivam13
 # Sneak peek 👀
 
 ![image](https://user-images.githubusercontent.com/70281451/210524065-a7091181-6397-408a-8e9d-ea6c5594d4af.png)
-![image](https://user-images.githubusercontent.com/70281451/210524166-aa569b91-9a74-4aa1-bdb6-9445bba06321.png)
-![image](https://user-images.githubusercontent.com/70281451/210524655-3bce7faa-47de-4b1a-bc57-a5b78d657f4a.png)
+![image](https://user-images.githubusercontent.com/70281451/217275299-41c2de1f-ffc7-4ac9-bd8b-62931314df5c.png)
+![image](https://user-images.githubusercontent.com/70281451/217275611-b281097e-3003-46bc-864e-8a9f9603ed23.png)
 
 # Flow chart of application 📈
 
