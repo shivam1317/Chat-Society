@@ -9,7 +9,7 @@ import "./index.css";
 
 const Index = () => {
   return (
-    <div className="w-full h-[100vh] flex flex-col items-center overflow-scroll">
+    <div className="w-full h-[100vh] flex flex-col items-center overflow-scroll scrollbar-hide">
       {/* Hero section */}
       <div className="w-[95%] h-[70%] relative my-4">
         <img

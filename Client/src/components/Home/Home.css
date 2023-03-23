@@ -18,11 +18,11 @@
 ::-webkit-scrollbar-thumb:hover {
   background: #565f89;
 }
-.container {
+.container1 {
   background-color: #161625;
   display: grid;
-  grid-template-columns: 0.7fr 2fr 10fr;
-  width: 100vw;
+  grid-template-columns: 0.6fr 1.4fr 7fr;
+  width: 100%;
 }
 .channels {
   background-color: #1e1e30;
