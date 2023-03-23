@@ -11,9 +11,7 @@
   font-family: "DM Sans", sans-serif;
 }
 body {
-  /* overflow: hidden; */
   background-color: #161625;
   color: white;
-  height: 100vh;
   overflow: scroll;
 }

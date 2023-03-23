@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import "./App.css";
 import Login from "./components/Login/Login";
 import Home from "./components/Home/Home";
@@ -8,8 +8,6 @@ import { useState } from "react";
 import { ChannelContext } from "./components/Contexts/ChannelContext";
 import { ServerContext } from "./components/Contexts/ServerContext";
 import { UserContext } from "./components/Contexts/UserContext";
-import Server from "./components/Server/Server";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import Index from "./components/Index/Index";
 
 function App() {
@@ -21,6 +19,7 @@ function App() {
     serverName: null,
     serverId: null,
     serverCode: null,
+    serverOwnerId: null,
   });
   const [userInfo, setUserInfo] = useState({
     userName: null,
@@ -29,7 +28,6 @@ function App() {
 
   return (
     <>
-      {/* <ReactQueryDevtools /> */}
       <ServerContext.Provider value={{ serverInfo, setServerInfo }}>
         <ChannelContext.Provider value={{ channelInfo, setChannelInfo }}>
           <UserContext.Provider value={{ userInfo, setUserInfo }}>
