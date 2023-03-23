@@ -1,4 +1,3 @@
-import { BsJournalCode } from "react-icons/bs";
 import { AiOutlineCloseCircle } from "react-icons/ai";
 import "./Modal.css";
 

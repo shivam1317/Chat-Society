@@ -19,6 +19,7 @@ const CreateServer = ({ variant, closeModal }) => {
         const res = await axios.post(backendURL + "/api/createserver", {
           Name: housename,
           ownerId: userInfo.userId,
+          api_secret: import.meta.env.VITE_APP_API_SECRET,
         });
         closeModal();
         toast.update(id, {
@@ -34,6 +35,7 @@ const CreateServer = ({ variant, closeModal }) => {
           channelName: housename,
           serverId,
           ownerId: userInfo.userId,
+          api_secret: import.meta.env.VITE_APP_API_SECRET,
         });
         closeModal();
         toast.update(id, {

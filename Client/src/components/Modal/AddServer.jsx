@@ -26,6 +26,7 @@ const AddServer = ({ closeModal, servers }) => {
           const response = await axios.post(backendURL + "/api/joinserver", {
             Code: code,
             userId: userInfo.userId,
+            api_secret: import.meta.env.VITE_APP_API_SECRET,
           });
           closeModal();
           toast.update(id, {

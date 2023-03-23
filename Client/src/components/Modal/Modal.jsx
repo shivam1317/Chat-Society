@@ -1,17 +1,12 @@
-import React, { useRef, useContext, useState } from "react";
-import { ServerContext } from "../Contexts/ServerContext";
+import React, { useState } from "react";
 import { AiOutlineCloseCircle, AiOutlineHome } from "react-icons/ai";
 import { IoIosAddCircleOutline } from "react-icons/io";
-import { ToastContainer, toast } from "react-toastify";
-import axios from "axios";
 import CreateServer from "./CreateServer";
 import AddServer from "./AddServer";
 import "./Modal.css";
 
 const Modal = ({ showModal, closeModal, variant, servers }) => {
-  const { serverInfo } = useContext(ServerContext);
   const [flag, setFlag] = useState(true);
-  const serverId = serverInfo.serverId;
   // Closing the modal on clicking outside the container
   const handleOnClose = (e) => {
     if (e.target.id === "container") {
@@ -65,7 +60,6 @@ const Modal = ({ showModal, closeModal, variant, servers }) => {
           <AddServer closeModal={closeModal} servers={servers} />
         )}
       </div>
-      <ToastContainer />
     </div>
   );
 };
