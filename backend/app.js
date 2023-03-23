@@ -4,6 +4,7 @@ var path = require("path");
 var cookieParser = require("cookie-parser");
 var logger = require("morgan");
 const cors = require("cors");
+const prisma = require("./prisma/index");
 
 var app = express();
 
@@ -28,20 +29,17 @@ const frontendURL = process.env.FRONTEND_URL;
 const io = new Server(server, {
   cors: {
     origin: frontendURL,
-    methods: ["GET", "POST"],
+    methods: ["GET", "POST", "PUT", "DELETE"],
   },
 });
-const { messageData } = require("./controllers/MessageController.js");
 io.on("connection", (socket) => {
   console.log(`user with ${socket.id} socketID connected :)`);
   socket.on("send_message", async (data) => {
     await sendMsg(data);
-    // module.exports = data;
     socket.broadcast.emit("received_message", {
       data: "message received!!!",
       channelId: data.channelId,
     });
-    // socket.emit();
   });
 });
 
@@ -50,6 +48,7 @@ let channelRouter = require("./routes/channelRoute");
 let messageRouter = require("./routes/messageRoute");
 let userRouter = require("./routes/userRoute");
 
+// Routes
 app.use("/api", serverRouter);
 app.use("/channelapi", channelRouter);
 app.use("/msgapi", messageRouter);
@@ -70,11 +69,13 @@ app.use(function (err, req, res, next) {
   res.status(err.status || 500);
   res.render("error");
 });
+
 // const deleteData = async () => {
+//   await prisma.user.deleteMany({});
 //   // await prisma.message.deleteMany({});
 //   // await prisma.server.deleteMany({});
 //   // await prisma.channel.deleteMany({});
-//   // console.log("Deleted!");
+//   console.log("Deleted!");
 // };
 // deleteData();
 server.listen(process.env.PORT || 5000);
