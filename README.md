@@ -15,9 +15,8 @@
 
 -> chat society is a web application platform which allows you to create your own chatrooms and invite your friends in your chatrooms to chat with them.
 
-```
-NOTE: THIS WEB APPLICATION WILL NOT WORK PROPERLY ON MOBILE SO PLEASE USE DESKTOP
-```
+>**Warning**
+>THIS WEB APPLICATION WILL NOT WORK PROPERLY ON MOBILE SO PLEASE USE DESKTOP
 
 # Features 😎
 
