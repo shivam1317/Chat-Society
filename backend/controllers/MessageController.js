@@ -4,7 +4,6 @@ exports.sendMsg = async (messageData) => {
     console.log(
       `author : ${messageData.author} | message : ${messageData.message} | channelId: ${messageData.channelId} | authorId: ${messageData.authorId}`
     );
-    // const { message, channelId, author } = req.body;
     const result = await prisma.message.create({
       data: {
         message: messageData.message,
@@ -14,13 +13,7 @@ exports.sendMsg = async (messageData) => {
         type: messageData.type,
       },
     });
-    console.log(result);
-    // res.json({
-    //   msg: "Your msg is successfully sent!",
-    //   result,
-    // });
   } catch (error) {
-    // res.json(error.message);
     console.log(error);
   }
 };
