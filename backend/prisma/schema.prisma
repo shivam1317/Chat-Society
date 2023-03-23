@@ -15,7 +15,7 @@ model Message{
   id String @id @default(auto()) @map("_id") @db.ObjectId
   channelId String @db.ObjectId
   timestamp DateTime @default(now())
-  channelName Channel @relation(fields: [channelId], references: [id])
+  channelName Channel @relation(fields: [channelId], references: [id], onDelete: Cascade)
   author String
   authorId String
   message String
@@ -28,9 +28,9 @@ model Channel{
   serverId  String @db.ObjectId
   ownerId String @db.ObjectId
   channelName String
-  serverName Server @relation(fields: [serverId], references: [id])
+  serverName Server @relation(fields: [serverId], references: [id], onDelete: Cascade)
   messages Message[]
-  Owner User @relation(fields: [ownerId], references: [id])
+  Owner User @relation(fields: [ownerId], references: [id], onDelete: Cascade)
 }
 
 // Model For Server
@@ -40,7 +40,7 @@ model Server{
   channels Channel[]
   Code String @unique
   ownerId String @db.ObjectId
-  Owner User @relation(fields: [ownerId], references: [id])
+  Owner User @relation(fields: [ownerId], references: [id], onDelete: Cascade)
 }
 
 // Model for users
